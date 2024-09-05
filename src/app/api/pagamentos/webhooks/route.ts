@@ -6,6 +6,8 @@ export async function POST(request: Request) {
 
     const payload = request.body;
 
+    console.log(payload)
+
     const refSnapshot = ref(database, 'pagamentos')
     await push(refSnapshot, payload)
 
