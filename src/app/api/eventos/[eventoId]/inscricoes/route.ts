@@ -12,9 +12,7 @@ export async function GET(_: Request, { params }: ApiProps) {
     const refInscricoes = ref(database, `eventos/${params.eventoId}/inscricoes`)
     const snapshotInscricoes = await get(refInscricoes)
 
-    const inscricoes = Object
-        .entries<InscritoType>(snapshotInscricoes.val())
-        .map<InscritoType>(([id, inscrito]) => ({ id, ...inscrito }));
+    const inscricoes = snapshotInscricoes.val() as InscritoType[]
 
     return Response.json({ inscricoes })
 }
