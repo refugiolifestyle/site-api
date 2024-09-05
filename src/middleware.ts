@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const allowedOrigins = [
     'https://vercel.com',
     'https://arefugio.com.br',
+    'https://asaas.com',
     'http://localhost:3000'
 ]
 
