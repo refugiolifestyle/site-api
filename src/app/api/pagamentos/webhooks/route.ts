@@ -3,7 +3,7 @@ import { ref, push } from "firebase/database";
 
 export async function POST(request: Request) {
     const webhookResponse = new Response(request.body);
-    const payload = await webhookResponse.json()
+    const payload = await webhookResponse.text()
 
     console.log(payload)
 
