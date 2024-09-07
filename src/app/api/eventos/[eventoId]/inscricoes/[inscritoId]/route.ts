@@ -21,7 +21,7 @@ export async function GET(_: Request, { params }: ApiProps) {
 
     return Response.json({ inscrito: {
         ...inscrito,
-        cpf: cpf.replaceAll(/[^\d]+/, ''),
-        telefone: telefone.replaceAll(/[^\d]+/, ''),
+        cpf: cpf.replaceAll(/[^\d]+/g, ''),
+        telefone: telefone.replaceAll(/[^\d]+/g, ''),
     } })
 }
