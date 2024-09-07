@@ -15,7 +15,7 @@ export async function GET(_: Request, { params }: ApiProps) {
     const inscrito = snapshotInscrito.val() as InscritoType
 
     if (inscrito.pagamento) {
-        return Response.json({ checkout: inscrito.pagamento.checkout.url })
+        return Response.json({ checkout: inscrito.pagamento.url })
     }
 
     const refEvento = ref(database, `eventos/${params.eventoId}`)
@@ -33,7 +33,8 @@ export async function GET(_: Request, { params }: ApiProps) {
                 {
                     "amount": `${evento.valor}00`,
                     "description": evento.titulo,
-                    "quantity": 1
+                    "quantity": 1,
+                    "code": evento.id
                 }
             ],
             "customer": {
@@ -55,6 +56,7 @@ export async function GET(_: Request, { params }: ApiProps) {
                     "payment_method": "checkout",
                     "checkout": {
                         "accepted_payment_methods": ["credit_card", "pix"],
+                        "success_url": `https://arefugio.com.br`,
                         "credit_card": {
                             "statement_descriptor": evento.id.slice(0, 22).toUpperCase(),
                             "installments": [
@@ -91,16 +93,10 @@ export async function GET(_: Request, { params }: ApiProps) {
         id: pagamento.id,
         codigo: pagamento.code,
         valor: evento.valor,
-        finalizado: pagamento.closed,
         status: pagamento.status,
         criadoEm: pagamento.created_at,
         atualizadoEm: pagamento.updated_at,
-        checkout: {
-            id: checkout.id,
-            url: checkout.payment_url,
-            criadoEm: checkout.created_at,
-            atualizadoEm: checkout.updated_at
-        }
+        url: checkout.payment_url,
     })
 
     return Response.json({ checkout: checkout.payment_url })

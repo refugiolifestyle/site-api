@@ -23,16 +23,9 @@ export interface Pagamento {
   id: string
   codigo: string
   valor: string
-  finalizado: string
   status: string
   criadoEm: string
   atualizadoEm: string
-  checkout: Checkout
-}
-
-export interface Checkout {
-  id: string
+  pagoEm?: string
   url: string
-  criadoEm: string
-  atualizadoEm: string
 }

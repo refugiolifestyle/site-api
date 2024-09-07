@@ -1,113 +1,128 @@
 {
-  "id": "hook_71k2BOUPpuQvwpDR",
-  "account": {
-    "id": "acc_6PwJ2635UzFXpkzB",
-    "name": "REFUGIO LIFESTYLE"
-  },
-  "type": "order.created",
-  "created_at": "2024-09-07T19:04:26.213Z",
-  "data": {
-    "id": "or_XJYM9gjhYcyqkLr5",
-    "code": "XR0BZ7SLP8",
-    "amount": 100,
-    "currency": "BRL",
-    "closed": false,
-    "items": [
-      {
-        "id": "oi_kBE3pYEFeMIKoPdR",
-        "type": "product",
-        "description": "Be Loud Conferência 2k24",
-        "amount": 100,
-        "quantity": 1,
-        "status": "active",
-        "created_at": "2024-09-07T19:04:26",
-        "updated_at": "2024-09-07T19:04:26"
-      }
-    ],
-    "customer": {
-      "id": "cus_KdB1YmnSGcEerOmW",
-      "name": "Luis Enrique Portugal",
-      "document": "02452261254",
-      "document_type": "cpf",
-      "type": "individual",
-      "delinquent": false,
-      "created_at": "2024-09-07T19:04:26",
-      "updated_at": "2024-09-07T19:04:26",
-      "phones": {
-        "mobile_phone": {
-          "country_code": "55",
-          "number": "985286060",
-          "area_code": "91"
-        }
-      }
+    "id": "hook_Xn8EZKaF9vFq5xQq",
+    "account": {
+      "id": "acc_6PwJ2635UzFXpkzB",
+      "name": "REFUGIO LIFESTYLE"
     },
-    "status": "pending",
-    "created_at": "2024-09-07T19:04:26",
-    "updated_at": "2024-09-07T19:04:26",
-    "checkouts": [
-      {
-        "id": "chk_d0QNabqFlju4p49v",
-        "currency": "BRL",
-        "amount": 100,
-        "status": "open",
-        "success_url": "https://admin.arefugio.com.br/api/eventos/beloudconferencia2024/inscricoes/02452261254/pagamento",
-        "payment_url": "https://api.pagar.me/checkout/v1/orders/chk_d0QNabqFlju4p49v",
-        "customer_editable": false,
-        "required_fields": [
-          "customer.document",
-          "customer.mobile_phone",
-          "customer.name"
-        ],
-        "billing_address_editable": true,
-        "skip_checkout_success_page": false,
-        "shippable": false,
-        "created_at": "2024-09-07T19:04:26",
-        "updated_at": "2024-09-07T19:04:26",
-        "accepted_payment_methods": [
-          "credit_card",
-          "pix"
-        ],
-        "accepted_multi_payment_methods": [],
-        "customer": {
-          "id": "cus_KdB1YmnSGcEerOmW",
-          "name": "Luis Enrique Portugal",
-          "document": "02452261254",
-          "document_type": "cpf",
-          "type": "individual",
-          "delinquent": false,
-          "created_at": "2024-09-07T19:04:26",
-          "updated_at": "2024-09-07T19:04:26",
-          "phones": {
-            "mobile_phone": {
-              "country_code": "55",
-              "number": "985286060",
-              "area_code": "91"
-            }
+    "type": "order.paid",
+    "created_at": "2024-09-07T19:53:03.1434932Z",
+    "data": {
+      "id": "or_jO3Q8MesEs48oqx7",
+      "code": "61G9IKIPRY",
+      "amount": 100,
+      "currency": "BRL",
+      "closed": true,
+      "items": [
+        {
+          "id": "oi_06KDWJvHGH4W1vyE",
+          "amount": 100,
+          "created_at": "2024-09-07T19:51:52.18Z",
+          "description": "Be Loud Conferência 2k24",
+          "quantity": 1,
+          "status": "active",
+          "updated_at": "2024-09-07T19:51:52.18Z"
+        }
+      ],
+      "customer": {
+        "id": "cus_qj61vpKHWHgYDXxE",
+        "name": "Luis Enrique Gomes Portugal",
+        "email": "luisenriquegomesportugal@gmail.com",
+        "document": "02452261254",
+        "document_type": "cpf",
+        "type": "individual",
+        "delinquent": false,
+        "address": {
+          "id": "addr_aKbAo6yszsPDGkrn",
+          "line_1": "245, Travessa Almirante Wandenkolk, Nazaré",
+          "line_2": "",
+          "street": "Travessa Almirante Wandenkolk",
+          "number": "245",
+          "complement": "",
+          "zip_code": "66055030",
+          "neighborhood": "Nazaré",
+          "city": "Belém",
+          "state": "PA",
+          "country": "BR",
+          "status": "active",
+          "created_at": "2024-09-07T19:19:31.463Z",
+          "updated_at": "2024-09-07T19:19:31.463Z",
+          "metadata": {}
+        },
+        "created_at": "2024-09-07T19:19:27.21Z",
+        "updated_at": "2024-09-07T19:51:52.163Z",
+        "phones": {
+          "mobile_phone": {
+            "country_code": "55",
+            "number": "985286060",
+            "area_code": "91"
           }
         },
-        "credit_card": {
-          "capture": true,
-          "statementDescriptor": "BELOUDCONFERENCIA2024",
-          "statement_descriptor": "BELOUDCONFERENCIA2024",
-          "authentication": {
-            "type": "none",
-            "threed_secure": {}
-          },
-          "installments": [
-            {
-              "number": 1,
-              "total": 100
-            }
-          ]
-        },
-        "pix": {
-          "expires_at": "2024-09-07T20:04:26",
-          "additional_information": []
-        },
-        "billing_address": {},
         "metadata": {}
-      }
-    ]
-  }
-}
-
+      },
+      "status": "paid",
+      "created_at": "2024-09-07T19:51:52.18Z",
+      "updated_at": "2024-09-07T19:53:02.9549145Z",
+      "closed_at": "2024-09-07T19:52:42.513Z",
+      "charges": [
+        {
+          "id": "ch_2oNzqOtqvfbZnLxP",
+          "code": "61G9IKIPRY",
+          "gateway_id": "3219684371",
+          "amount": 100,
+          "paid_amount": 100,
+          "status": "paid",
+          "currency": "BRL",
+          "payment_method": "pix",
+          "paid_at": "2024-09-07T19:53:02Z",
+          "created_at": "2024-09-07T19:52:41.843Z",
+          "updated_at": "2024-09-07T19:53:02.9392744Z",
+          "pending_cancellation": false,
+          "customer": {
+            "id": "cus_qj61vpKHWHgYDXxE",
+            "name": "Luis Enrique Gomes Portugal",
+            "email": "luisenriquegomesportugal@gmail.com",
+            "document": "02452261254",
+            "document_type": "cpf",
+            "type": "individual",
+            "delinquent": false,
+            "address": {
+              "id": "addr_aKbAo6yszsPDGkrn",
+              "line_1": "245, Travessa Almirante Wandenkolk, Nazaré",
+              "line_2": "",
+              "street": "Travessa Almirante Wandenkolk",
+              "number": "245",
+              "complement": "",
+              "zip_code": "66055030",
+              "neighborhood": "Nazaré",
+              "city": "Belém",
+              "state": "PA",
+              "country": "BR",
+              "status": "active",
+              "created_at": "2024-09-07T19:19:31.463Z",
+              "updated_at": "2024-09-07T19:19:31.463Z",
+              "metadata": {}
+            },
+            "created_at": "2024-09-07T19:19:27.21Z",
+            "updated_at": "2024-09-07T19:51:52.163Z",
+            "phones": {
+              "mobile_phone": {
+                "country_code": "55",
+                "number": "985286060",
+                "area_code": "91"
+              }
+            },
+            "metadata": {}
+          },
+          "checkout_payment": {
+            "id": "chk_1mWbQGLsxs045kdB",
+            "amount": 100,
+            "status": "closed",
+            "payment_url": "https://api.pagar.me/checkout/v1/orders/chk_1mWbQGLsxs045kdB",
+            "billing_address_editable": true,
+            "created_at": "2024-09-07T19:51:52.21Z",
+            "updated_at": "2024-09-07T19:52:42.48Z"
+          },
+          "last_transaction": {
+            "transaction_type": "pix",
+            "pix_provider_tid": "3219684371",
+            "qr_code": "000201010212268200
