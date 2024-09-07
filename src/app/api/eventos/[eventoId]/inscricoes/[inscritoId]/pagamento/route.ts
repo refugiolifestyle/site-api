@@ -56,7 +56,6 @@ export async function GET(_: Request, { params }: ApiProps) {
                     "payment_method": "checkout",
                     "checkout": {
                         "accepted_payment_methods": ["credit_card", "pix"],
-                        "success_url": `https://arefugio.com.br`,
                         "credit_card": {
                             "statement_descriptor": evento.id.slice(0, 22).toUpperCase(),
                             "installments": [
