@@ -7,6 +7,7 @@ export type InscritoType = {
   celula?: string
   preInscricao?: string
   inscricaoConfirmada?: string
+  pagamento?: Pagamento
 }
 
 export type EventoType = {
@@ -16,5 +17,23 @@ export type EventoType = {
   logo: string
   chamada: string
   fundo: string
+  valor: number
   inscricoes?: InscritoType[]
+}
+export interface Pagamento {
+  id: string
+  codigo: string
+  valor: string
+  finalizado: string
+  status: string
+  criadoEm: string
+  atualizadoEm: string
+  checkout: Checkout
+}
+
+export interface Checkout {
+  id: string
+  url: string
+  criadoEm: string
+  atualizadoEm: string
 }

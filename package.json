@@ -4,18 +4,24 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev-server": "node src/server.js",
     "build": "next build",
     "start": "next start",
+    "start-server": "NODE_ENV=production node src/server.js",
     "lint": "next lint"
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "firebase": "^10.13.1",
     "next": "14.2.7",
     "payment-token-efi": "^3.0.3",
     "react": "^18",
     "react-dom": "^18",
-    "sdk-node-apis-efi": "^1.2.3"
+    "sdk-node-apis-efi": "^1.2.3",
+    "site-api": "file:",
+    "socket.io": "^4.7.5"
   },
   "devDependencies": {
     "@types/node": "^20",
