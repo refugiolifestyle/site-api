@@ -10,18 +10,27 @@ type ApiProps = {
 
 export async function GET(_: Request, { params }: ApiProps) {
     const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}`)
-    let snapshotInscrito = await get(refInscrito)
+    const snapshotInscrito = await get(refInscrito)
+    let data = snapshotInscrito.val()
 
     if (!snapshotInscrito.exists()) {
         const refInscritoAnteriomente = ref(database, `inscricoes/${params.inscritoId}`)
-        snapshotInscrito = await get(refInscritoAnteriomente)
+        const snapshotInscritoAnteriomente = await get(refInscritoAnteriomente)
+
+        data = {
+            ...snapshotInscritoAnteriomente.val(),
+            novo: true
+        }
+
     }
 
-    const {eventos, cpf, telefone, ...inscrito} = snapshotInscrito.val()
+    const { eventos, cpf, telefone, ...inscrito } = data
 
-    return Response.json({ inscrito: {
-        ...inscrito,
-        cpf: cpf.replaceAll(/[^\d]+/g, ''),
-        telefone: telefone.replaceAll(/[^\d]+/g, ''),
-    } })
+    return Response.json({
+        inscrito: {
+            ...inscrito,
+            cpf: cpf.replaceAll(/[^\d]+/g, ''),
+            telefone: telefone.replaceAll(/[^\d]+/g, ''),
+        }
+    })
 }
