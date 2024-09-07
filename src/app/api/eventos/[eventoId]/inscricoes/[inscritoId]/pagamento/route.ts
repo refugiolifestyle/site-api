@@ -41,6 +41,7 @@ export async function GET(_: Request, { params }: ApiProps) {
                 "name": inscrito.nome,
                 "document_type": 'cpf',
                 "document": inscrito.cpf,
+                "email": inscrito.email,
                 "phones": {
                     "mobile_phone": {
                         "country_code": '55',
@@ -54,7 +55,6 @@ export async function GET(_: Request, { params }: ApiProps) {
                     "payment_method": "checkout",
                     "checkout": {
                         "accepted_payment_methods": ["credit_card", "pix"],
-                        "success_url": `${process.env.DOMAIN_URL}/api/eventos/${params.eventoId}/inscricoes/${params.inscritoId}/pagamento`,
                         "credit_card": {
                             "statement_descriptor": evento.id.slice(0, 22).toUpperCase(),
                             "installments": [
@@ -104,13 +104,4 @@ export async function GET(_: Request, { params }: ApiProps) {
     })
 
     return Response.json({ checkout: checkout.payment_url })
-}
-
-export async function POST(request: Request, { params }: ApiProps) {
-    const response = new Response(request.body)
-    const webhook = await response.json();
-
-    console.log("eventos pagamentos", params, webhook)
-
-    return Response.json({}, { status: 200 })
 }

@@ -1,0 +1,113 @@
+{
+  "id": "hook_71k2BOUPpuQvwpDR",
+  "account": {
+    "id": "acc_6PwJ2635UzFXpkzB",
+    "name": "REFUGIO LIFESTYLE"
+  },
+  "type": "order.created",
+  "created_at": "2024-09-07T19:04:26.213Z",
+  "data": {
+    "id": "or_XJYM9gjhYcyqkLr5",
+    "code": "XR0BZ7SLP8",
+    "amount": 100,
+    "currency": "BRL",
+    "closed": false,
+    "items": [
+      {
+        "id": "oi_kBE3pYEFeMIKoPdR",
+        "type": "product",
+        "description": "Be Loud Conferência 2k24",
+        "amount": 100,
+        "quantity": 1,
+        "status": "active",
+        "created_at": "2024-09-07T19:04:26",
+        "updated_at": "2024-09-07T19:04:26"
+      }
+    ],
+    "customer": {
+      "id": "cus_KdB1YmnSGcEerOmW",
+      "name": "Luis Enrique Portugal",
+      "document": "02452261254",
+      "document_type": "cpf",
+      "type": "individual",
+      "delinquent": false,
+      "created_at": "2024-09-07T19:04:26",
+      "updated_at": "2024-09-07T19:04:26",
+      "phones": {
+        "mobile_phone": {
+          "country_code": "55",
+          "number": "985286060",
+          "area_code": "91"
+        }
+      }
+    },
+    "status": "pending",
+    "created_at": "2024-09-07T19:04:26",
+    "updated_at": "2024-09-07T19:04:26",
+    "checkouts": [
+      {
+        "id": "chk_d0QNabqFlju4p49v",
+        "currency": "BRL",
+        "amount": 100,
+        "status": "open",
+        "success_url": "https://admin.arefugio.com.br/api/eventos/beloudconferencia2024/inscricoes/02452261254/pagamento",
+        "payment_url": "https://api.pagar.me/checkout/v1/orders/chk_d0QNabqFlju4p49v",
+        "customer_editable": false,
+        "required_fields": [
+          "customer.document",
+          "customer.mobile_phone",
+          "customer.name"
+        ],
+        "billing_address_editable": true,
+        "skip_checkout_success_page": false,
+        "shippable": false,
+        "created_at": "2024-09-07T19:04:26",
+        "updated_at": "2024-09-07T19:04:26",
+        "accepted_payment_methods": [
+          "credit_card",
+          "pix"
+        ],
+        "accepted_multi_payment_methods": [],
+        "customer": {
+          "id": "cus_KdB1YmnSGcEerOmW",
+          "name": "Luis Enrique Portugal",
+          "document": "02452261254",
+          "document_type": "cpf",
+          "type": "individual",
+          "delinquent": false,
+          "created_at": "2024-09-07T19:04:26",
+          "updated_at": "2024-09-07T19:04:26",
+          "phones": {
+            "mobile_phone": {
+              "country_code": "55",
+              "number": "985286060",
+              "area_code": "91"
+            }
+          }
+        },
+        "credit_card": {
+          "capture": true,
+          "statementDescriptor": "BELOUDCONFERENCIA2024",
+          "statement_descriptor": "BELOUDCONFERENCIA2024",
+          "authentication": {
+            "type": "none",
+            "threed_secure": {}
+          },
+          "installments": [
+            {
+              "number": 1,
+              "total": 100
+            }
+          ]
+        },
+        "pix": {
+          "expires_at": "2024-09-07T20:04:26",
+          "additional_information": []
+        },
+        "billing_address": {},
+        "metadata": {}
+      }
+    ]
+  }
+}
+

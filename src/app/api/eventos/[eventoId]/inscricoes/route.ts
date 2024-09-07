@@ -21,7 +21,11 @@ export async function POST(request: Request, { params }: ApiProps) {
     const inscrito: InscritoType = await request.json();
 
     if (!inscrito.cpf) {
-        return Response.json({ message: "Campo cpf é obrigatório" }, { status: 400 })
+        return Response.json({ message: "Campo CPF é obrigatório" }, { status: 400 })
+    }
+
+    if (!inscrito.email) {
+        return Response.json({ message: "Campo Email é obrigatório" }, { status: 400 })
     }
 
     const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${inscrito.cpf}`)
