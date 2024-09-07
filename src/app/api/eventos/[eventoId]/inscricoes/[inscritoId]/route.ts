@@ -1,5 +1,4 @@
 import { database } from "@/firebase";
-import { InscritoType } from "@/types";
 import { get, ref } from "firebase/database";
 
 type ApiProps = {
@@ -11,9 +10,18 @@ type ApiProps = {
 
 export async function GET(_: Request, { params }: ApiProps) {
     const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}`)
-    const snapshotInscrito = await get(refInscrito)
+    let snapshotInscrito = await get(refInscrito)
 
-    const inscrito: InscritoType = snapshotInscrito.val()
+    if (!snapshotInscrito.exists()) {
+        const refInscritoAnteriomente = ref(database, `inscricoes/${params.inscritoId}`)
+        snapshotInscrito = await get(refInscritoAnteriomente)
+    }
 
-    return Response.json({ inscrito })
+    const {eventos, cpf, telefone, ...inscrito} = snapshotInscrito.val()
+
+    return Response.json({ inscrito: {
+        ...inscrito,
+        cpf: cpf.replaceAll(/[^\d]+/, ''),
+        telefone: telefone.replaceAll(/[^\d]+/, ''),
+    } })
 }
