@@ -17,8 +17,15 @@ export async function GET(_: Request, { params }: ApiProps) {
         const refInscritoAnteriomente = ref(database, `inscricoes/${params.inscritoId}`)
         const snapshotInscritoAnteriomente = await get(refInscritoAnteriomente)
 
-        const { eventos, cpf, telefone, ...inscrito } = snapshotInscritoAnteriomente.val()
+        if (!snapshotInscritoAnteriomente.exists()) {
+            return Response.json({
+                inscrito: {
+                    cpf: params.inscritoId
+                }
+            })
+        }
 
+        const { eventos, cpf, telefone, ...inscrito } = snapshotInscritoAnteriomente.val()
         data = {
             ...inscrito,
             cpf: cpf.replaceAll(/[^\d]+/g, ''),
@@ -29,7 +36,6 @@ export async function GET(_: Request, { params }: ApiProps) {
     }
 
     let { eventos, ...inscrito } = data
-
     return Response.json({
         inscrito
     })
