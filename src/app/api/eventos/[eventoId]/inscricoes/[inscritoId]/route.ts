@@ -20,7 +20,8 @@ export async function GET(_: Request, { params }: ApiProps) {
         if (!snapshotInscritoAnteriomente.exists()) {
             return Response.json({
                 inscrito: {
-                    cpf: params.inscritoId
+                    cpf: params.inscritoId,
+                    novo: true
                 }
             })
         }
