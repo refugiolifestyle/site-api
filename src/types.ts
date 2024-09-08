@@ -17,6 +17,7 @@ export type EventoType = {
   chamada: string
   fundo: string
   valor: number
+  tiposPagamentos?: string
   inscricoes?: InscritoType[]
 }
 export interface Pagamento {
