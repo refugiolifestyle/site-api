@@ -55,7 +55,7 @@ export async function GET(_: Request, { params }: ApiProps) {
                 {
                     "payment_method": "checkout",
                     "checkout": {
-                        "customer_editable": true,
+                        "skip_checkout_success_page": true,
                         "accepted_payment_methods": evento.tiposPagamentos ? evento.tiposPagamentos.split(',') : ["pix"],
                         "credit_card": {
                             "statement_descriptor": evento.id.slice(0, 22).toUpperCase(),
