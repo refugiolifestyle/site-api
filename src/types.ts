@@ -1,5 +1,6 @@
 export type InscritoType = {
   id?: string
+  idPagarme?: string
   cpf: string
   nome?: string
   telefone?: string
@@ -30,3 +31,37 @@ export interface Pagamento {
   pagoEm?: string
   url: string
 }
+
+export type PixCharge = {
+  calendario: {
+    criacao: string,
+    expiracao: number
+  },
+  txid: string,
+  revisao: number,
+  loc: {
+    id: number,
+    location: string,
+    tipoCob: string
+  },
+  location: string,
+  status: string,
+  devedor: {
+    cpf?: string,
+    cnpj?: string,
+    nome: string
+  },
+  valor: {
+    original: string
+  },
+  chave: string,
+  solicitacaoPagador?: string,
+  pixCopiaECola: string
+}
+
+export type PixChargeLoc = {
+  qrcode: string,
+  imagemQrcode: string,
+  linkVisualizacao: string
+}
+
