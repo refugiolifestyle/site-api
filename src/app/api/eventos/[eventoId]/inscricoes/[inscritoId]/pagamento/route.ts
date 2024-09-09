@@ -14,10 +14,6 @@ export async function GET(_: Request, { params }: ApiProps) {
     const snapshotInscrito = await get(refInscrito);
     const inscrito = snapshotInscrito.val() as InscritoType
 
-    if (inscrito.pagamento) {
-        return Response.json({ checkout: inscrito.pagamento.url })
-    }
-
     const refEvento = ref(database, `eventos/${params.eventoId}`)
     const snapshotEvento = await get(refEvento);
     const evento = snapshotEvento.val() as EventoType
@@ -67,7 +63,7 @@ export async function GET(_: Request, { params }: ApiProps) {
                             ]
                         },
                         "pix": {
-                            "expires_in": 3600
+                            "expires_in": 3600 * 24
                         },
                     }
                 }
