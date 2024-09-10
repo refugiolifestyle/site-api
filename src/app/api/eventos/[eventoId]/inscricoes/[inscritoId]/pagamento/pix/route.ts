@@ -16,16 +16,37 @@ type ApiProps = {
 
 export async function GET(_: Request, { params }: ApiProps) {
     try {
+        const efipay = new EfiPay(efi)
+
         const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}`)
         const snapshotInscrito = await get(refInscrito);
         const inscrito = snapshotInscrito.val() as InscritoType
+
+        if (inscrito.pagamento && inscrito.pagamento.status == 'ATIVA') {
+            if (inscrito.pagamento.criadoEm) {
+                let criadoEmDate = new Date(inscrito.pagamento.criadoEm)
+                let criadoEmDateExpiration = criadoEmDate.setHours(criadoEmDate.getHours() + 1)
+                if (Date.now() < criadoEmDateExpiration) {
+                    return Response.json({ checkout: inscrito.pagamento.url })
+                }
+            }
+
+            let updateCharge = await efipay.pixUpdateCharge({
+                txid: inscrito.pagamento.id
+            }, {
+                status: "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+            })
+
+            if(!updateCharge.ok) {
+                throw `Falha ao remover a cobrança ${inscrito.pagamento.id}`
+            }
+        }
 
         const refEvento = ref(database, `eventos/${params.eventoId}`)
         const snapshotEvento = await get(refEvento);
         const evento = snapshotEvento.val() as EventoType
 
-        const efipay = new EfiPay(efi)
-        let charge = await efipay.pixCreateImmediateCharge({ }, {
+        let charge = await efipay.pixCreateImmediateCharge({}, {
             "calendario": {
                 "expiracao": 3600
             },
@@ -50,7 +71,8 @@ export async function GET(_: Request, { params }: ApiProps) {
             status: charge.status,
             txid: charge.txid,
             valor: charge.valor.original,
-            url: visualization.linkVisualizacao
+            url: visualization.linkVisualizacao,
+            criadoEm: charge.calendario.criacao
         })
 
         const refEventosPagamento = ref(database, `eventosPagamentos/${charge.txid}`)

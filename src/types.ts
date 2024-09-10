@@ -27,7 +27,6 @@ export interface Pagamento {
   valor: string
   status: string
   criadoEm: string
-  atualizadoEm: string
   pagoEm?: string
   url: string
 }
