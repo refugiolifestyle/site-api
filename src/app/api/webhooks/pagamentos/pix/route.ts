@@ -7,21 +7,17 @@ export async function POST(request: Request) {
     const data = await webhookResponse.json() as { pix: PixReturn[] }
 
     for (let pixReturn of data.pix) {
-        console.log("pixReturn", pixReturn)
-
         const refeventosPagamentos = ref(database, `eventosPagamentos/${pixReturn.txid}`)
         const snapshotPagamento = await get(refeventosPagamentos)
 
         let [refPagamento] = Object.values<string>(snapshotPagamento.val())
+        console.log("pixReturn", refPagamento)
 
-        const refSnapshotStatus = ref(database, `${refPagamento}/status`)
-        await set(refSnapshotStatus, "CONCLUIDA")
-
-        const refSnapshotHoraio = ref(database, `${refPagamento}/pagoEm`)
-        await set(refSnapshotHoraio, pixReturn.horario)
-
-        const refSnapshotPixId = ref(database, `${refPagamento}/pixID`)
-        await set(refSnapshotPixId, pixReturn.endToEndId)
+        await Promise.all([
+            set(ref(database, `${refPagamento}/status`), "CONCLUIDA"),
+            set(ref(database, `${refPagamento}/pagoEm`), pixReturn.horario),
+            set(ref(database, `${refPagamento}/pixID`), pixReturn.endToEndId)
+        ])
     }
 
     return Response.json({})
