@@ -29,15 +29,11 @@ export async function GET(_: Request, { params }: ApiProps) {
                 if (Date.now() < criadoEmDateExpiration) {
                     return Response.json({ checkout: inscrito.pagamento.url })
                 }
+            } else {
+                await efipay.pixUpdateCharge({ txid: inscrito.pagamento.txid }, {
+                    status: "REMOVIDA_PELO_USUARIO_RECEBEDOR"
+                })
             }
-
-            let updateCharge = await efipay.pixUpdateCharge({
-                txid: inscrito.pagamento.txid
-            }, {
-                status: "REMOVIDA_PELO_USUARIO_RECEBEDOR"
-            })
-
-            console.log(updateCharge)
         }
 
         const refEvento = ref(database, `eventos/${params.eventoId}`)
