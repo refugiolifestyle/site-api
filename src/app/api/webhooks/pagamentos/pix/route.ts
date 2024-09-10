@@ -22,6 +22,9 @@ export async function POST(request: Request) {
 
         const refSnapshotPixId = ref(database, `eventos/${pagamento.eventoId}/inscricoes/${pagamento.inscritoId}/pagamento/pixID`)
         await set(refSnapshotPixId, pixReturn.endToEndId)
+
+        const refSnapshotReturn = ref(database, `eventosPagamentos/${pixReturn.txid}/pagoEm`)
+        await set(refSnapshotReturn, pixReturn.horario)
     }
 
     return Response.json({})
