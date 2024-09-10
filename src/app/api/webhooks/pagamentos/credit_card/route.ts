@@ -11,5 +11,5 @@ export async function POST(request: Request) {
     // const refSnapshotStatus = ref(database, `eventos/${evento.code}/inscricoes/${data.customer.document}/pagamento/status`)
     // await set(refSnapshotStatus, data.status)
 
-    return "200"
+    return Response.json({})
 }
