@@ -4,17 +4,14 @@ import { ref, push, set, get } from "firebase/database";
 
 export async function POST(request: Request) {
     const webhookResponse = new Response(request.body);
-    const { pix } = await webhookResponse.json() as { pix: PixReturn }
+    const data = await webhookResponse.json() as { pix: PixReturn[] }
 
-    console.log("pix", pix)
+    const [pixReturn] = data.pix
 
-    const refPagamento = ref(database, `eventosPagamentos/${pix.txid}`)
+    const refPagamento = ref(database, `eventosPagamentos/${pixReturn.txid}`)
     const snapshotPagamento = await get(refPagamento)
 
     let shotPagamento = snapshotPagamento.val()
-
-    console.log("shotPagamento", shotPagamento)
-
     let [eventoPagamento] = Object.entries(shotPagamento)
     let [txid, pagamento] = eventoPagamento as [string, {eventoId: string, inscritoId: string}]
 
@@ -22,10 +19,10 @@ export async function POST(request: Request) {
     await set(refSnapshotStatus, "CONCLUIDA")
 
     const refSnapshotHoraio = ref(database, `eventos/${pagamento.eventoId}/inscricoes/${pagamento.inscritoId}/pagamento/pagoEm`)
-    await set(refSnapshotHoraio, pix.horario)
+    await set(refSnapshotHoraio, pixReturn.horario)
 
     const refSnapshotPixId = ref(database, `eventos/${pagamento.eventoId}/inscricoes/${pagamento.inscritoId}/pagamento/pixID`)
-    await set(refSnapshotPixId, pix.endToEndId)
+    await set(refSnapshotPixId, pixReturn.endToEndId)
 
     return Response.json({})
 }
