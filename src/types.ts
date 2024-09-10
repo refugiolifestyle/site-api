@@ -22,7 +22,7 @@ export type EventoType = {
   inscricoes?: InscritoType[]
 }
 export interface Pagamento {
-  id: string
+  txid: string
   codigo: string
   valor: string
   status: string

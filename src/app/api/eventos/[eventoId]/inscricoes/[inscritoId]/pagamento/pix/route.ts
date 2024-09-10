@@ -32,13 +32,13 @@ export async function GET(_: Request, { params }: ApiProps) {
             }
 
             let updateCharge = await efipay.pixUpdateCharge({
-                txid: inscrito.pagamento.id
+                txid: inscrito.pagamento.txid
             }, {
                 status: "REMOVIDA_PELO_USUARIO_RECEBEDOR"
             })
 
             if(!updateCharge.ok) {
-                throw `Falha ao remover a cobrança ${inscrito.pagamento.id}`
+                throw `Falha ao remover a cobrança ${inscrito.pagamento.txid}`
             }
         }
 
