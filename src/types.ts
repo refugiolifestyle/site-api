@@ -65,3 +65,10 @@ export type PixChargeLoc = {
   linkVisualizacao: string
 }
 
+export interface PixReturn {
+  endToEndId: string
+  txid: string
+  chave: string
+  valor: string
+  horario: string
+}

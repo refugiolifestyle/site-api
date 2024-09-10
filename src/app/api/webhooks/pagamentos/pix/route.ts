@@ -1,15 +1,22 @@
 import { database } from "@/firebase";
-import { ref, push, set } from "firebase/database";
+import { PixReturn } from "@/types";
+import { ref, push, set, get } from "firebase/database";
 
 export async function POST(request: Request) {
     const webhookResponse = new Response(request.body);
-    const resp = await webhookResponse.json()
+    const { pix } = await webhookResponse.json() as { pix: PixReturn }
 
-    console.log(resp)
-    // const [evento] = data.items;
+    const refPagamento = ref(database, `eventosPagamentos/${pix.txid}`)
+    const snapshotPagamento = await get(refPagamento)
 
-    // const refSnapshotStatus = ref(database, `eventos/${evento.code}/inscricoes/${data.customer.document}/pagamento/status`)
-    // await set(refSnapshotStatus, data.status)
+    let shotPagamento = snapshotPagamento.val() as {[txid: string]: { eventoId: string, inscritoId: string }}
+    let [pagamento] = Object.values(shotPagamento)
+
+    const refSnapshotStatus = ref(database, `eventos/${pagamento.eventoId}/inscricoes/${pagamento.inscritoId}/pagamento/status`)
+    await set(refSnapshotStatus, "CONCLUIDA")
+
+    const refSnapshotHoraio = ref(database, `eventos/${pagamento.eventoId}/inscricoes/${pagamento.inscritoId}/pagamento/pagoEm`)
+    await set(refSnapshotHoraio, pix.horario)
 
     return Response.json({})
 }

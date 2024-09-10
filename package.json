@@ -19,7 +19,7 @@
     "payment-token-efi": "^3.0.3",
     "react": "^18",
     "react-dom": "^18",
-    "sdk-node-apis-efi": "^1.2.3",
+    "sdk-node-apis-efi": "https://github.com/efipay/sdk-node-apis-efi.git",
     "site-api": "file:",
     "socket.io": "^4.7.5",
     "uuid": "^10.0.0"
