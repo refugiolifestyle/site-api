@@ -1,5 +1,5 @@
 export default {
-    sandbox: process.env.EFI_SANDBOX === 'true',
+    sandbox: process.env.EFI_SANDBOX,
     client_id: process.env.EFI_ID,
     client_secret: process.env.EFI_SECRET,
     certificate: btoa(process.env.EFI_CERT || ""),
