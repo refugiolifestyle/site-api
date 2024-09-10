@@ -26,8 +26,6 @@ export async function GET(_: Request, { params }: ApiProps) {
 
         const txid = v4().replaceAll(/-/g, "")
 
-        console.log(efi)
-
         const efipay = new EfiPay(efi)
         let charge = await efipay.pixCreateCharge({ txid }, {
             "calendario": {
