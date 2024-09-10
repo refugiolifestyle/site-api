@@ -1,6 +1,6 @@
 import { database } from "@/firebase";
 import { PixReturn } from "@/types";
-import { ref, push, set, get } from "firebase/database";
+import { ref, update, set, get } from "firebase/database";
 
 export async function POST(request: Request) {
     const webhookResponse = new Response(request.body);
@@ -9,28 +9,19 @@ export async function POST(request: Request) {
     for (let pixReturn of data.pix) {
         console.log("pixReturn", pixReturn)
 
-        const refPagamento = ref(database, `eventosPagamentos/${pixReturn.txid}`)
-        const snapshotPagamento = await get(refPagamento)
+        const refeventosPagamentos = ref(database, `eventosPagamentos/${pixReturn.txid}`)
+        const snapshotPagamento = await get(refeventosPagamentos)
 
-        let shotPagamento = snapshotPagamento.val()
-        console.log("shotPagamento", shotPagamento)
+        let [refPagamento] = Object.values<string>(snapshotPagamento.val())
 
-        let [eventoPagamento] = Object.entries(shotPagamento)
-        console.log("eventoPagamento", eventoPagamento)
-        let [txid, pagamento] = eventoPagamento as [string, { eventoId: string, inscritoId: string }]
-        console.log("pagamento", pagamento)
-
-        const refSnapshotStatus = ref(database, `eventos/${pagamento.eventoId}/inscricoes/${pagamento.inscritoId}/pagamento/status`)
+        const refSnapshotStatus = ref(database, `${refPagamento}/status`)
         await set(refSnapshotStatus, "CONCLUIDA")
 
-        const refSnapshotHoraio = ref(database, `eventos/${pagamento.eventoId}/inscricoes/${pagamento.inscritoId}/pagamento/pagoEm`)
+        const refSnapshotHoraio = ref(database, `${refPagamento}/pagoEm`)
         await set(refSnapshotHoraio, pixReturn.horario)
 
-        const refSnapshotPixId = ref(database, `eventos/${pagamento.eventoId}/inscricoes/${pagamento.inscritoId}/pagamento/pixID`)
+        const refSnapshotPixId = ref(database, `${refPagamento}/pixID`)
         await set(refSnapshotPixId, pixReturn.endToEndId)
-
-        const refSnapshotReturn = ref(database, `eventosPagamentos/${pixReturn.txid}/pagoEm`)
-        await set(refSnapshotReturn, pixReturn.horario)
     }
 
     return Response.json({})

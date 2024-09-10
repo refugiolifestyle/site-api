@@ -24,10 +24,8 @@ export async function GET(_: Request, { params }: ApiProps) {
         const snapshotEvento = await get(refEvento);
         const evento = snapshotEvento.val() as EventoType
 
-        const txid = v4().replaceAll(/-/g, "")
-
         const efipay = new EfiPay(efi)
-        let charge = await efipay.pixCreateCharge({ txid }, {
+        let charge = await efipay.pixCreateImmediateCharge({ }, {
             "calendario": {
                 "expiracao": 3600
             },
@@ -59,10 +57,7 @@ export async function GET(_: Request, { params }: ApiProps) {
         })
 
         const refEventosPagamento = ref(database, `eventosPagamentos/${charge.txid}`)
-        await set(refEventosPagamento, {
-            eventoId: params.eventoId,
-            inscritoId: params.inscritoId
-        })
+        await set(refEventosPagamento, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/pagamento`)
 
         return Response.json({ checkout: visualization.linkVisualizacao })
     }
