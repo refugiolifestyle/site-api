@@ -9,8 +9,9 @@ export async function POST(request: Request) {
     const refPagamento = ref(database, `eventosPagamentos/${pix.txid}`)
     const snapshotPagamento = await get(refPagamento)
 
-    let shotPagamento = snapshotPagamento.val() as {[txid: string]: { eventoId: string, inscritoId: string }}
-    let [pagamento] = Object.values(shotPagamento)
+    let shotPagamento = snapshotPagamento.val()
+    let [eventoPagamento] = Object.entries(shotPagamento)
+    let [txid, pagamento] = eventoPagamento as [string, {eventoId: string, inscritoId: string}]
 
     const refSnapshotStatus = ref(database, `eventos/${pagamento.eventoId}/inscricoes/${pagamento.inscritoId}/pagamento/status`)
     await set(refSnapshotStatus, "CONCLUIDA")
