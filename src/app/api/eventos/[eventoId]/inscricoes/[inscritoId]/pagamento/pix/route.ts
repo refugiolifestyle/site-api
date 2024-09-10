@@ -37,9 +37,7 @@ export async function GET(_: Request, { params }: ApiProps) {
                 status: "REMOVIDA_PELO_USUARIO_RECEBEDOR"
             })
 
-            if(!updateCharge.ok) {
-                throw `Falha ao remover a cobrança ${inscrito.pagamento.txid}`
-            }
+            console.log(updateCharge)
         }
 
         const refEvento = ref(database, `eventos/${params.eventoId}`)
