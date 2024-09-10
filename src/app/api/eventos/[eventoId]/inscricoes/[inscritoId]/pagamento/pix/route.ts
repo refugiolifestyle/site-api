@@ -46,13 +46,10 @@ export async function GET(_: Request, { params }: ApiProps) {
 
         const refPagamento = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/pagamento`)
         await set(refPagamento, {
-            chave: charge.chave,
-            pixCopiaECola: charge.pixCopiaECola,
             locationId: charge.loc.id,
             status: charge.status,
             txid: charge.txid,
             valor: charge.valor.original,
-            imagemQrcode: visualization.imagemQrcode,
             url: visualization.linkVisualizacao
         })
 
