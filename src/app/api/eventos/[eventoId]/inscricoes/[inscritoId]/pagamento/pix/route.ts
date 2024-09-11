@@ -4,7 +4,7 @@ import efi from "@/configs/efi"
 
 import { database } from "@/firebase"
 import { EventoType, InscritoType, PixCharge, PixChargeLoc } from "@/types"
-import { get, ref, set } from "firebase/database"
+import { get, ref, remove, set } from "firebase/database"
 import { v4 } from "uuid"
 
 type ApiProps = {
@@ -33,6 +33,8 @@ export async function GET(_: Request, { params }: ApiProps) {
                 await efipay.pixUpdateCharge({ txid: inscrito.pagamento.txid }, {
                     status: "REMOVIDA_PELO_USUARIO_RECEBEDOR"
                 })
+
+                await remove(ref(database, `eventosPagamentos/${inscrito.pagamento.txid}`))
             }
         }
 
