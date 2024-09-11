@@ -11,11 +11,7 @@ export async function POST(request: Request) {
             const refeventosPagamentos = ref(database, `eventosPagamentos/${pixReturn.txid}`)
             const snapshotPagamento = await get(refeventosPagamentos)
 
-            console.log("snapshotPagamento.val()", snapshotPagamento.val())
-
-            let [refPagamento] = Object.values<string>(snapshotPagamento.val())
-            console.log("refPagamento", refPagamento)
-
+            let refPagamento = snapshotPagamento.val()
             await Promise.all([
                 set(ref(database, `${refPagamento}/status`), "CONCLUIDA"),
                 set(ref(database, `${refPagamento}/pagoEm`), pixReturn.horario),
