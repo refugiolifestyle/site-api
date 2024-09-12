@@ -18,6 +18,7 @@ export type EventoType = {
   chamada: string
   fundo: string
   valor: number
+  limitePagamentos?: string
   tiposPagamentos?: string
   inscricoes?: InscritoType[]
 }
@@ -29,6 +30,40 @@ export interface Pagamento {
   criadoEm: string
   pagoEm?: string
   url: string
+}
+
+export type Charge = {
+  charge_id: number,
+  status: string,
+  total: number,
+  custom_id: string | null,
+  payment_url: string,
+  payment_method: string,
+  billet_discount: number | null,
+  card_discount: number | null,
+  conditional_discount_value: number | null,
+  conditional_discount_type: string | null,
+  conditional_discount_date: string | null,
+  request_delivery_address: boolean,
+  message: string | null,
+  expire_at: string,
+  created_at: string
+}
+
+export type ChargeReturn = {
+  created_at: string
+  custom_id: any
+  id: number
+  identifiers: {
+    charge_id: number
+  }
+  received_by_bank_at: string
+  status: {
+    current: string
+    previous: string
+  }
+  type: string
+  value: number
 }
 
 export type PixCharge = {
@@ -64,7 +99,7 @@ export type PixChargeLoc = {
   linkVisualizacao: string
 }
 
-export interface PixReturn {
+export type PixReturn = {
   endToEndId: string
   txid: string
   chave: string
