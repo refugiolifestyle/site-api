@@ -26,13 +26,14 @@ export async function POST(request: Request, { params }: Props) {
         .sort((a, b) => String(a.id).localeCompare(String(b.id)))
         .pop()
 
+    console.log(notification)
+
     const refeventosPagamentos = ref(database, `eventosPagamentos/${params.txid}`)
     const snapshotPagamento = await get(refeventosPagamentos)
 
     let refPagamento = snapshotPagamento.val()
     await Promise.all([
         set(ref(database, `${refPagamento}/status`), notification?.status.current),
-        set(ref(database, `${refPagamento}/chargeID`), notification?.identifiers.charge_id),
         set(ref(database, `${refPagamento}/pagoEm`), notification?.received_by_bank_at || false)
     ])
 
