@@ -29,6 +29,8 @@ export interface Pagamento {
   status: string
   criadoEm: string
   pagoEm?: string
+  expiraEm?: string
+  locationId?: number
   url: string
 }
 
