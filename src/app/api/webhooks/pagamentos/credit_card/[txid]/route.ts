@@ -1,5 +1,10 @@
+// @ts-ignore:next-line
+import EfiPay from 'sdk-node-apis-efi'
+import efi from "@/configs/efi"
+
 import { database } from "@/firebase";
-import { ref, push, set } from "firebase/database";
+import { ref, push, set, get } from "firebase/database";
+import { ChargeReturn } from '@/types';
 
 type Props = {
     params: {
@@ -7,15 +12,26 @@ type Props = {
     }
 }
 
-export async function POST(request: Request, { params }: Props) {
-    const webhookResponse = new Response(request.body);
-    const resp = await webhookResponse.text()
+export async function POST(_: Request, { params }: Props) {
+    const efipay = new EfiPay(efi)
+    let { data: notifications } = await efipay
+        .getNotification({}, {
+            token: params.txid
+        }) as { code: number, data: ChargeReturn[] }
 
-    console.log(params.txid, resp)
-    // const [evento] = data.items;
+    let notification = notifications
+        .sort((a, b) => String(a.id).localeCompare(String(b.id)))
+        .pop()
 
-    // const refSnapshotStatus = ref(database, `eventos/${evento.code}/inscricoes/${data.customer.document}/pagamento/status`)
-    // await set(refSnapshotStatus, data.status)
+    const refeventosPagamentos = ref(database, `eventosPagamentos/${params.txid}`)
+    const snapshotPagamento = await get(refeventosPagamentos)
+
+    let refPagamento = snapshotPagamento.val()
+    await Promise.all([
+        set(ref(database, `${refPagamento}/status`), notification?.status.current),
+        set(ref(database, `${refPagamento}/pagoEm`), notification?.received_by_bank_at),
+        set(ref(database, `${refPagamento}/chargeID`), notification?.identifiers.charge_id)
+    ])
 
     return Response.json({})
 }
