@@ -9,9 +9,9 @@ type Props = {
 
 export async function POST(request: Request, { params }: Props) {
     const webhookResponse = new Response(request.body);
-    const resp = await webhookResponse.json()
+    const resp = await webhookResponse.text()
 
-    console.log(resp)
+    console.log(params.txid, resp)
     // const [evento] = data.items;
 
     // const refSnapshotStatus = ref(database, `eventos/${evento.code}/inscricoes/${data.customer.document}/pagamento/status`)
