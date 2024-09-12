@@ -14,8 +14,9 @@ type Props = {
 
 export async function POST(_: Request, { params }: Props) {
     const efipay = new EfiPay(efi)
+    
     let { data: notifications } = await efipay
-        .getNotification({}, {
+        .getNotification({
             token: params.txid
         }) as { code: number, data: ChargeReturn[] }
 
@@ -35,3 +36,4 @@ export async function POST(_: Request, { params }: Props) {
 
     return Response.json({})
 }
+/api/webhooks/pagamentos/credit_card/50b8c4e4-c9b8-4a6c-a977-846b94daff1d
