@@ -24,6 +24,7 @@ export type EventoType = {
   chamada: string
   fundo: string
   valor: number
+  meta?: number
   limitePagamentos?: string
   tiposPagamentos?: string
   inscricoes?: InscritoType[]

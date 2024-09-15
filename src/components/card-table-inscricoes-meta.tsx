@@ -40,23 +40,14 @@ const TableStatusPagamento = ({ inscrito }: { inscrito: InscritoType }) => {
 
   switch (inscrito.pagamento.status) {
     case 'paid':
-    case 'CONCLUIDA': return <Badge onDoubleClick={() => async () => {
-      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-      toast.success("Copiado com sucesso")
-    }} className="text-xs text-white bg-green-700" variant="outline">
+    case 'CONCLUIDA': return <Badge className="text-xs text-white bg-green-700" variant="outline">
       Pago
     </Badge>
     case 'unpaid':
-    case 'canceled': return <Badge onDoubleClick={() => async () => {
-      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-      toast.success("Copiado com sucesso")
-    }} className="text-xs text-white bg-red-700" variant="outline">
+    case 'canceled': return <Badge className="text-xs text-white bg-red-700" variant="outline">
       Não pago
     </Badge>
-    default: return <Badge onDoubleClick={() => async () => {
-      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-      toast.success("Copiado com sucesso")
-    }} className="text-xs text-white bg-orange-500" variant="outline">
+    default: return <Badge className="text-xs text-white bg-orange-500" variant="outline">
       Aguardando pagamento
     </Badge>
   }

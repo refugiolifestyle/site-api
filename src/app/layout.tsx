@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Image from "next/image"
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata = {
   title: 'Administração :: Refúgio Lifestyle',
@@ -115,6 +116,7 @@ export default function RootLayout({
             {children}
           </main>
         </div>
+        <Toaster />
       </body>
     </html>
   )
