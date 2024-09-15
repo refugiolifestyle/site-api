@@ -26,11 +26,14 @@ export async function GET(_: Request, { params }: ApiProps) {
             })
         }
 
-        const { eventos, cpf, telefone, ...inscrito } = snapshotInscritoAnteriomente.val()
+        const { eventos, cpf, telefone, rede, celula, naoTenhoCelula, ...inscrito } = snapshotInscritoAnteriomente.val()
         data = {
             ...inscrito,
             cpf: cpf.replaceAll(/[^\d]+/g, ''),
             telefone: telefone.replaceAll(/[^\d]+/g, ''),
+            rede: naoTenhoCelula ? "" : rede,
+            celula: naoTenhoCelula ? "" : celula,
+            convidado: naoTenhoCelula,
             novo: true
         }
 
