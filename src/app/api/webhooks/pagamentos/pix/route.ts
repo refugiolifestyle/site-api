@@ -11,12 +11,21 @@ export async function POST(request: Request) {
             const refeventosPagamentos = ref(database, `eventosPagamentos/${pixReturn.txid}`)
             const snapshotPagamento = await get(refeventosPagamentos)
 
-            let refPagamento = snapshotPagamento.val()
-            await Promise.all([
-                set(ref(database, `${refPagamento}/status`), "CONCLUIDA"),
-                set(ref(database, `${refPagamento}/pagoEm`), pixReturn.horario),
-                set(ref(database, `${refPagamento}/pixID`), pixReturn.endToEndId)
-            ])
+            if (!snapshotPagamento.exists()) {
+                await Promise.all([
+                    set(ref(database, `eventosPagamentosAvulsos/${pixReturn.txid}/status`), "CONCLUIDA"),
+                    set(ref(database, `eventosPagamentosAvulsos/${pixReturn.txid}/pagoEm`), pixReturn.horario),
+                    set(ref(database, `eventosPagamentosAvulsos/${pixReturn.txid}/pixID`), pixReturn.endToEndId)
+                ])
+            }
+            else {
+                let refPagamento = snapshotPagamento.val()
+                await Promise.all([
+                    set(ref(database, `${refPagamento}/status`), "CONCLUIDA"),
+                    set(ref(database, `${refPagamento}/pagoEm`), pixReturn.horario),
+                    set(ref(database, `${refPagamento}/pixID`), pixReturn.endToEndId)
+                ])
+            }
         }
 
         return Response.json({})
