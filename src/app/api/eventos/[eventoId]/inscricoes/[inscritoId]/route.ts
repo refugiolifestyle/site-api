@@ -33,7 +33,7 @@ export async function GET(_: Request, { params }: ApiProps) {
             telefone: telefone.replaceAll(/[^\d]+/g, ''),
             rede: naoTenhoCelula ? "" : rede,
             celula: naoTenhoCelula ? "" : celula,
-            convidado: naoTenhoCelula,
+            visitante: naoTenhoCelula,
             novo: true
         }
 
