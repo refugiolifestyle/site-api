@@ -40,20 +40,20 @@ const TableStatusPagamento = ({ inscrito }: { inscrito: InscritoType }) => {
 
   switch (inscrito.pagamento.status) {
     case 'paid':
-    case 'CONCLUIDA': return <Badge onDoubleClick={() => async () => {
+    case 'CONCLUIDA': return <Badge onDoubleClick={async () => {
       await navigator.clipboard.writeText(inscrito.pagamento?.url!)
       toast.success("Copiado com sucesso")
     }} className="text-xs text-white bg-green-700" variant="outline">
       Pago
     </Badge>
     case 'unpaid':
-    case 'canceled': return <Badge onDoubleClick={() => async () => {
+    case 'canceled': return <Badge onDoubleClick={async () => {
       await navigator.clipboard.writeText(inscrito.pagamento?.url!)
       toast.success("Copiado com sucesso")
     }} className="text-xs text-white bg-red-700" variant="outline">
       Não pago
     </Badge>
-    default: return <Badge onDoubleClick={() => async () => {
+    default: return <Badge onDoubleClick={async () => {
       await navigator.clipboard.writeText(inscrito.pagamento?.url!)
       toast.success("Copiado com sucesso")
     }} className="text-xs text-white bg-orange-500" variant="outline">
@@ -121,7 +121,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
         <CardTitle>Inscrições</CardTitle>
         <CardDescription>
           {
-            inscricoes.filter(f => getStatusPagamento(f) === "Pago").length
+            inscricoesFiltradas.filter(f => getStatusPagamento(f) === "Pago").length
           } inscrições finalizadas
         </CardDescription>
       </CardHeader>
