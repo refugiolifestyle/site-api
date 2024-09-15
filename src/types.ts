@@ -1,3 +1,9 @@
+export type CelulaType = {
+  id: number
+  rede: number
+  celula: string
+}
+
 export type InscritoType = {
   id?: string
   idPagarme?: string
