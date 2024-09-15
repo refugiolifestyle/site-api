@@ -457,7 +457,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                 <span className="sr-only">Anterior</span>
               </Button>
             </PaginationItem>
-            <div className="text-sm text-muted-foreground mx-2">
+            <div className="text-sm text-muted-foreground mx-2 sr-only lg:not-sr-only">
               Página {page} de {pagesLength}
             </div>
             <PaginationItem>
