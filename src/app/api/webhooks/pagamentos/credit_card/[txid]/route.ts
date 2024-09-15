@@ -30,17 +30,19 @@ export async function POST(request: Request, { params }: Props) {
     const snapshotPagamento = await get(refeventosPagamentos)
 
     if (!snapshotPagamento.exists()) {
-        await Promise.all([
-            set(ref(database, `eventosPagamentosAvulsos/${params.txid}/status`), notification?.status.current),
-            set(ref(database, `eventosPagamentosAvulsos/${params.txid}/pagoEm`), notification?.created_at)
-        ])
+        await set(ref(database, `eventosPagamentosAvulsos/${params.txid}/status`), notification?.status.current)
+
+        if (notification?.status.current == 'paid') {
+            await set(ref(database, `eventosPagamentosAvulsos/${params.txid}/pagoEm`), notification?.created_at)
+        }
     }
     else {
         let refPagamento = snapshotPagamento.val()
-        await Promise.all([
-            set(ref(database, `${refPagamento}/status`), notification?.status.current),
-            set(ref(database, `${refPagamento}/pagoEm`), notification?.created_at)
-        ])
+        await set(ref(database, `${refPagamento}/status`), notification?.status.current)
+
+        if (notification?.status.current == 'paid') {
+            await set(ref(database, `${refPagamento}/pagoEm`), notification?.created_at)
+        }
     }
 
 

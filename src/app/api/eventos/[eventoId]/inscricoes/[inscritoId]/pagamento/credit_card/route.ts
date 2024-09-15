@@ -22,7 +22,7 @@ export async function GET(_: Request, { params }: ApiProps) {
         const snapshotInscrito = await get(refInscrito);
         const inscrito = snapshotInscrito.val() as InscritoType
 
-        if (inscrito.pagamento && inscrito.pagamento.status != 'unpaid') {
+        if (inscrito.pagamento && !['unpaid', 'ATIVA'].includes(inscrito.pagamento.status)) {
             if (inscrito.pagamento.expiraEm) {
                 let expiraEmDate = new Date(inscrito.pagamento.expiraEm)
                 if (Date.now() < expiraEmDate.getTime()) {
