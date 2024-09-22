@@ -42,13 +42,13 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
   let inscricoesControle: Record<string, { rede: string, celula: string, lider?: string, inscricoes: number }> = {}
   inscricoes.forEach(i => {
     if (!inscricoesControle[i.celula || "Convidado"]) {
-      let lider = celulas.find(c => String(c.id) == i.celula)?.lider
+      let celula = celulas.find(c => c.celula == i.celula)
 
       inscricoesControle[i.celula || "Convidado"] = {
         rede: i.rede || "",
         celula: i.celula || "Convidado",
         inscricoes: 0,
-        lider
+        lider: celula?.lider
       }
     }
 
@@ -230,9 +230,9 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               className="gap-1 text-sm"
               onClick={async () => {
                 let inscricoesText = inscricoesFiltradas
-                  .map(v => ([v.rede, v.celula, v.inscricoes].join('\t')))
+                  .map(v => ([v.rede, v.celula, v.lider, v.inscricoes].join('\t')))
                 await navigator.clipboard.writeText([
-                  "Rede\tCélula\Total de Inscrições",
+                  "Rede\tCélula\tLíder\tTotal de Inscrições",
                   ...inscricoesText
                 ].join('\n'))
                 toast.success("Copiado com sucesso")
