@@ -18,9 +18,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, User, Users } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, Loader2, MoreVertical, Search, User, Users } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { useForm, SubmitHandler } from "react-hook-form"
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -31,6 +32,8 @@ type Props = {
   inscricoes: InscritoType[]
 }
 
+type CelulaControle = { rede: string, celula: string, lider?: string, inscricoes: number }
+
 export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }: Props) {
   const [page, setPage] = useState<number>(1)
   const [filterGlobal, setFilterGlobal] = useState("")
@@ -39,7 +42,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
   const [celula, setCelula] = useState("Todos")
   const [celulaOpen, setCelulaOpen] = useState(false)
 
-  let inscricoesControle: Record<string, { rede: string, celula: string, lider?: string, inscricoes: number }> = {}
+  let inscricoesControle: Record<string, CelulaControle> = {}
   inscricoes.forEach(i => {
     if (!inscricoesControle[i.celula || "Convidado"]) {
       let celula = celulas.find(c => c.celula == i.celula)
@@ -55,10 +58,10 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
     inscricoesControle[i.celula || "Convidado"].inscricoes += 1
   })
 
-  let inscricoesFiltradas: { rede: string, celula: string, lider?: string, inscricoes: number }[] = Object.values(inscricoesControle)
-  inscricoesFiltradas = inscricoesFiltradas.filter(f => rede == "Todos" ? true : f.rede?.toLowerCase() == rede.toLowerCase())
-  inscricoesFiltradas = inscricoesFiltradas.filter(f => celula == "Todos" ? true : f.celula?.toLowerCase() == celula.toLowerCase())
-  inscricoesFiltradas = inscricoesFiltradas.filter(f => {
+  let celulasFiltradas: CelulaControle[] = Object.values(inscricoesControle)
+  celulasFiltradas = celulasFiltradas.filter(f => rede == "Todos" ? true : f.rede?.toLowerCase() == rede.toLowerCase())
+  celulasFiltradas = celulasFiltradas.filter(f => celula == "Todos" ? true : f.celula?.toLowerCase() == celula.toLowerCase())
+  celulasFiltradas = celulasFiltradas.filter(f => {
     if (!filterGlobal) {
       return true
     }
@@ -72,9 +75,9 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
   })
 
   const sorter = new Intl.Collator('pt-BR', { usage: "sort", numeric: true })
-  inscricoesFiltradas.sort((a, b) => sorter.compare(`${b.inscricoes}-${b.rede}-${b.celula}`, `${a.inscricoes}-${a.rede}-${a.celula}`))
+  celulasFiltradas.sort((a, b) => sorter.compare(`${b.inscricoes}-${b.rede}-${b.celula}`, `${a.inscricoes}-${a.rede}-${a.celula}`))
 
-  let pagesLength = inscricoesFiltradas.length ? Math.ceil(inscricoesFiltradas.length / 10) : 0
+  let pagesLength = celulasFiltradas.length ? Math.ceil(celulasFiltradas.length / 10) : 0
 
   let redes = celulas.map(c => `Rede ${c.rede}`)
     .filter((v, i, a) => a.lastIndexOf(v) === i)
@@ -86,7 +89,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
         <CardTitle>Meta</CardTitle>
         <CardDescription>
           {
-            inscricoesFiltradas.filter(f => f.inscricoes >= evento.meta!).length
+            celulasFiltradas.filter(f => f.inscricoes >= evento.meta!).length
           } inscrições que bateram a meta
         </CardDescription>
       </CardHeader>
@@ -229,7 +232,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               size="sm"
               className="gap-1 text-sm"
               onClick={async () => {
-                let inscricoesText = inscricoesFiltradas
+                let inscricoesText = celulasFiltradas
                   .map(v => ([v.rede, v.celula, v.lider, v.inscricoes].join('\t')))
                 await navigator.clipboard.writeText([
                   "Rede\tCélula\tLíder\tTotal de Inscrições",
@@ -252,24 +255,28 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               <TableHead>Célula</TableHead>
               <TableHead>Líder</TableHead>
               <TableHead>Total de Inscrições</TableHead>
+              <TableHead>Meta</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {
-              inscricoesFiltradas
-                .slice((page - 1) * 10, page * 10 > inscricoesFiltradas.length ? inscricoesFiltradas.length : page * 10)
-                .map((inscrito, i) => <TableRow key={inscrito.celula} className={i % 2 == 0 ? "bg-accent" : "null"}>
+              celulasFiltradas
+                .slice((page - 1) * 10, page * 10 > celulasFiltradas.length ? celulasFiltradas.length : page * 10)
+                .map((celulaFiltrada, i) => <TableRow key={celulaFiltrada.celula} className={i % 2 == 0 ? "bg-accent" : "null"}>
                   <TableCell className="hidden md:table-cell">
-                    {inscrito.rede || '-'}
+                    {celulaFiltrada.rede || '-'}
                   </TableCell>
                   <TableCell>
-                    {inscrito.celula || 'Convidado'}
+                    {celulaFiltrada.celula || 'Convidado'}
                   </TableCell>
                   <TableCell>
-                    {inscrito.lider || '-'}
+                    {celulaFiltrada.lider || '-'}
                   </TableCell>
                   <TableCell>
-                    {inscrito.inscricoes}
+                    {celulaFiltrada.inscricoes}
+                  </TableCell>
+                  <TableCell>
+                    <ConfirmaBateuMeta evento={evento} celula={celulaFiltrada} />
                   </TableCell>
                 </TableRow>)
             }
@@ -280,9 +287,9 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
         <div className="text-sm text-muted-foreground">
           Mostrando de <span className="font-medium">{((page - 1) * 10) + 1}</span>{' '}
           até{' '}
-          <span className="font-medium">{page * 10 > inscricoesFiltradas.length ? inscricoesFiltradas.length : page * 10}</span>{' '}
+          <span className="font-medium">{page * 10 > celulasFiltradas.length ? celulasFiltradas.length : page * 10}</span>{' '}
           de{' '}
-          <span className="font-medium">{inscricoesFiltradas.length}</span> linhas
+          <span className="font-medium">{celulasFiltradas.length}</span> linhas
         </div>
         <Pagination className="ml-auto mr-0 w-auto">
           <PaginationContent>
@@ -318,4 +325,50 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
       </CardFooter>
     </Card>
   </div>
+}
+
+const ConfirmaBateuMeta = ({ celula, evento }: { celula: CelulaControle, evento: EventoType }) => {
+  const form = useForm()
+  
+  let celulaId = celula.celula.replaceAll(/[^\d]+/g, '')
+
+  const onSubmit: SubmitHandler<any> = async () => {
+    try {
+      let confirmar = confirm("Deseja confirmar realmente?")
+      if (!confirmar) {
+        throw "Confirmação negada";
+      }
+
+      let response = await fetch(`/api/eventos/${evento.id}/metaBatida/${celulaId}`, { method: "PATCH" })
+      if (!response.ok) {
+        throw "Falha ao confirmar a meta"
+      }
+    } catch (error) {
+      if (error != "Confirmação negada") {
+        alert(error)
+      }
+
+      throw error;
+    }
+  }
+
+  return celula.inscricoes >= evento.meta!
+    ? form.formState.isSubmitSuccessful
+      || evento.metaBatida?.hasOwnProperty(celulaId)
+      ? 'Confirmada'
+      : <form onSubmit={form.handleSubmit(onSubmit)}>
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          variant="outline"
+          className="space-x-2">
+          {
+            form.formState.isSubmitting
+              ? <Loader2 className="h-4 w-4 animate-spin" />
+              : <Check className="h-4 w-4" />
+          }
+          <span className="sr-only lg:not-sr-only">Confirmar meta</span>
+        </Button>
+      </form>
+    : null
 }

@@ -26,7 +26,7 @@ export type EventoType = {
   fundo: string
   valor: number
   meta?: number
-  metaBatida?: CelulaType[]
+  metaBatida?: Object
   limitePagamentos?: string
   tiposPagamentos?: string
   inscricoes?: InscritoType[]
