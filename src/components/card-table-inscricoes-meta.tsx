@@ -39,20 +39,23 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
   const [celula, setCelula] = useState("Todos")
   const [celulaOpen, setCelulaOpen] = useState(false)
 
-  let inscricoesControle: Record<string, { rede: string, celula: string, inscricoes: number }> = {}
+  let inscricoesControle: Record<string, { rede: string, celula: string, lider?: string, inscricoes: number }> = {}
   inscricoes.forEach(i => {
     if (!inscricoesControle[i.celula || "Convidado"]) {
+      let lider = celulas.find(c => String(c.id) == i.celula)?.lider
+
       inscricoesControle[i.celula || "Convidado"] = {
         rede: i.rede || "",
         celula: i.celula || "Convidado",
-        inscricoes: 0
+        inscricoes: 0,
+        lider
       }
     }
 
     inscricoesControle[i.celula || "Convidado"].inscricoes += 1
   })
 
-  let inscricoesFiltradas: { rede: string, celula: string, inscricoes: number }[] = Object.values(inscricoesControle)
+  let inscricoesFiltradas: { rede: string, celula: string, lider?: string, inscricoes: number }[] = Object.values(inscricoesControle)
   inscricoesFiltradas = inscricoesFiltradas.filter(f => rede == "Todos" ? true : f.rede?.toLowerCase() == rede.toLowerCase())
   inscricoesFiltradas = inscricoesFiltradas.filter(f => celula == "Todos" ? true : f.celula?.toLowerCase() == celula.toLowerCase())
   inscricoesFiltradas = inscricoesFiltradas.filter(f => {
@@ -247,6 +250,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                 Rede
               </TableHead>
               <TableHead>Célula</TableHead>
+              <TableHead>Líder</TableHead>
               <TableHead>Total de Inscrições</TableHead>
             </TableRow>
           </TableHeader>
@@ -260,6 +264,9 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                   </TableCell>
                   <TableCell>
                     {inscrito.celula || 'Convidado'}
+                  </TableCell>
+                  <TableCell>
+                    {inscrito.lider || '-'}
                   </TableCell>
                   <TableCell>
                     {inscrito.inscricoes}

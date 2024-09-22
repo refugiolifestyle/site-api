@@ -2,6 +2,7 @@ export type CelulaType = {
   id: number
   rede: number
   celula: string
+  lider: string
 }
 
 export type InscritoType = {
@@ -25,6 +26,7 @@ export type EventoType = {
   fundo: string
   valor: number
   meta?: number
+  metaBatida?: CelulaType[]
   limitePagamentos?: string
   tiposPagamentos?: string
   inscricoes?: InscritoType[]
