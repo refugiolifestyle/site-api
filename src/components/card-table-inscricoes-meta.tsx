@@ -328,15 +328,16 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
 }
 
 const ConfirmaBateuMeta = ({ celula, evento }: { celula: CelulaControle, evento: EventoType }) => {
-  const form = useForm()
+  const CONFIRMACAO_NEGADA_ERRO = "Confirmação negada"
   
-  let celulaId = celula.celula.replaceAll(/[^\d]+/g, '')
+  const form = useForm()
+  const celulaId = celula.celula.replaceAll(/[^\d]+/g, '')
 
   const onSubmit: SubmitHandler<any> = async () => {
     try {
       let confirmar = confirm("Deseja confirmar realmente?")
       if (!confirmar) {
-        throw "Confirmação negada";
+        throw CONFIRMACAO_NEGADA_ERRO;
       }
 
       let response = await fetch(`/api/eventos/${evento.id}/metaBatida/${celulaId}`, { method: "PATCH" })
@@ -344,7 +345,7 @@ const ConfirmaBateuMeta = ({ celula, evento }: { celula: CelulaControle, evento:
         throw "Falha ao confirmar a meta"
       }
     } catch (error) {
-      if (error != "Confirmação negada") {
+      if (error != CONFIRMACAO_NEGADA_ERRO) {
         alert(error)
       }
 

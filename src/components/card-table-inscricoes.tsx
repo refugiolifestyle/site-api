@@ -31,7 +31,7 @@ type Props = {
   inscricoes: InscritoType[]
 }
 
-const TableStatusPagamento = ({ inscrito }: { inscrito: InscritoType }) => {
+const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, evento: EventoType }) => {
   if (!inscrito.pagamento) {
     return <Badge className="text-xs" variant="outline">
       Cadastrado
@@ -44,7 +44,7 @@ const TableStatusPagamento = ({ inscrito }: { inscrito: InscritoType }) => {
       await navigator.clipboard.writeText(inscrito.pagamento?.url!)
       toast.success("Copiado com sucesso")
     }} className="text-xs text-white bg-green-700" variant="outline">
-      Pago
+      Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? "/100 Primeiros" : ""}
     </Badge>
     case 'unpaid':
     case 'canceled': return <Badge onDoubleClick={async () => {
@@ -103,7 +103,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
       new Date(f.pagamento?.pagoEm!).toLocaleString('pt-BR'),
       getStatusPagamento(f)
     ]
-      .some(v => v?.toLowerCase().startsWith(filterGlobal.toLowerCase()))
+      .some(v => v?.toLowerCase().startsWith(filterGlobal.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()))
   })
 
   const sorter = new Intl.Collator('pt-BR', { usage: "sort", numeric: true })
@@ -402,7 +402,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                     {inscrito.cpf.replace(/\d{3}(\d{3})(\d{2})\d{3}/, '***.$1.$2*-**')}
                   </TableCell>
                   <TableCell>
-                    <TableStatusPagamento inscrito={inscrito} />
+                    <TableStatusPagamento evento={evento} inscrito={inscrito} />
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

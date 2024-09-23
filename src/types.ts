@@ -27,6 +27,7 @@ export type EventoType = {
   valor: number
   meta?: number
   metaBatida?: Object
+  kits?: string[]
   limitePagamentos?: string
   tiposPagamentos?: string
   inscricoes?: InscritoType[]
