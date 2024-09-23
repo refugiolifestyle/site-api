@@ -13,9 +13,8 @@ import {
 
 import { EventoType, InscritoType } from "@/types";
 import { TicketCheck } from "lucide-react";
-import { useRef, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { Camera, CameraType } from "react-camera-pro";
-import { useMediaQuery } from 'usehooks-ts';
 import { Button } from "./ui/button";
 
 export const dynamic = 'auto'
@@ -28,30 +27,27 @@ type Props = {
 
 export default function DialogTableCredenciamentoCamera({ evento, inscrito }: Props) {
     const camera = useRef<CameraType>(null)
-    const mobileScreen = useMediaQuery('(min-width: 600px)');
+    const fileInput = useRef<HTMLInputElement>(null)
 
-    const [foto, setFoto] = useState("")
+    const salvar = (e: ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length == 0) {
+            return false
+        }
 
-    const salvar = () => {
+        let fotoReader = new FileReader()
+        fotoReader.onloadend = () => {
+            console.log(fotoReader.result as string)
+        }
 
-    }
-
-    const recredenciar = () => {
-        setFoto("")
-    }
-
-    const credenciar = () => {
-        let foto = camera.current?.takePhoto("base64url")
-        console.log(foto)
-        setFoto(foto as string)
+        let foto = e.target.files.item(0)
+        fotoReader.readAsDataURL(foto!)
     }
 
     return <Dialog>
         <DialogTrigger asChild>
             <Button
                 variant="outline"
-                className="flex space-x-2"
-                onClick={credenciar}>
+                className="flex space-x-2">
                 <TicketCheck className="size-4" />
                 <span className="sr-only lg:not-sr-only">Fazer credenciamento</span>
             </Button>
@@ -59,27 +55,28 @@ export default function DialogTableCredenciamentoCamera({ evento, inscrito }: Pr
         <DialogContent className="max-w-[425px]">
             <DialogHeader>
                 <DialogTitle>Credênciamento</DialogTitle>
-                <DialogDescription>Coloque a pulseira no braço do inscrito e tire uma foto da pessoa com a pulseira a vista para comprovar o credênciamento</DialogDescription>
+                <DialogDescription>Siga os passos abaixo para concluir o credênciamento</DialogDescription>
             </DialogHeader>
-            <div className="w-20 h-32">
-                {
-                    foto
-                        ? <img src={foto} />
-                        : <input type="file" accept="image/*" capture="environment" />
-                }
+            <div className="px-4">
+                <input
+                    ref={fileInput}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={salvar} />
+                <ul className="list-decimal font-extralight text-justify">
+                    <li>Coloque a pulseira no braço do inscrito.</li>
+                    <li>Tire uma foto da pessoa com a pulseira a vista.</li>
+                    <li>Verifique se a foto ficou boa, caso não, tire novamente.</li>
+                    <li>Tudo certo.</li>
+                </ul>
             </div>
             <DialogFooter>
                 <DialogClose asChild>
                     <Button variant={"ghost"}>Cancelar</Button>
                 </DialogClose>
-                {
-                    foto
-                        ? <>
-                            <Button variant={"outline"} onClick={recredenciar}>Tirar novamente</Button>
-                            <Button variant={"default"} className="bg-green-600" onClick={salvar}>Salvar credênciamento</Button>
-                        </>
-                        : <Button variant={"outline"} className="bg-green-700 text-white" onClick={credenciar}>Tirar foto</Button>
-                }
+                <Button variant={"outline"} className="bg-green-700 text-white" onClick={() => fileInput.current?.click()}>Tirar foto e finalizar</Button>
             </DialogFooter>
         </DialogContent>
     </Dialog>
