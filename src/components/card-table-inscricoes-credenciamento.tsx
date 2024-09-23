@@ -341,25 +341,6 @@ export default function CardTableCredenciamento({ celulas, evento, inscricoes }:
                             </Command>
                         </PopoverContent>
                     </Popover>
-                    <div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-1 text-sm"
-                            onClick={async () => {
-                                let inscricoesText = inscricoesFiltradas
-                                    .map(v => ([v.rede, v.celula, v.nome, getStatusPagamento(v)].join('\t')))
-                                await navigator.clipboard.writeText([
-                                    "Rede\tCélula\tNome\tStatus de pagamento",
-                                    ...inscricoesText
-                                ].join('\n'))
-                                toast.success("Copiado com sucesso")
-                            }}
-                        >
-                            <Copy className="h-3.5 w-3.5" />
-                            <span className="sr-only xl:not-sr-only">Copiar dados</span>
-                        </Button>
-                    </div>
                 </div>
                 <Table>
                     <TableHeader>
