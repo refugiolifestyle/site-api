@@ -11,15 +11,15 @@ import {
   CardTitle
 } from "@/components/ui/card"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, User, Users } from "lucide-react"
-import { useState } from "react"
+import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, TicketCheck, User, Users } from "lucide-react"
+import { ReactNode, useState } from "react"
 import { toast } from "sonner"
 
 export const dynamic = 'auto'
@@ -57,7 +57,7 @@ const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, ev
       await navigator.clipboard.writeText(inscrito.pagamento?.url!)
       toast.success("Copiado com sucesso")
     }} className="text-xs text-white bg-orange-500" variant="outline">
-      Aguardando pagamento
+      Aguardando
     </Badge>
   }
 }
@@ -72,7 +72,7 @@ const getStatusPagamento = (inscrito: InscritoType) => {
     case 'CONCLUIDA': return "Pago"
     case 'unpaid':
     case 'canceled': return "Não pago"
-    default: return "Aguardando pagamento"
+    default: return "Aguardando"
   }
 }
 
@@ -314,13 +314,13 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                       Não pago
                     </CommandItem>
                     <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Aguardando pagamento")
+                      setSituacao("Aguardando")
                       setPage(1)
                     }}>
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          situacao === "Aguardando pagamento" ? "opacity-100" : "opacity-0"
+                          situacao === "Aguardando" ? "opacity-100" : "opacity-0"
                         )}
                       />
                       Aguardando pagamento
@@ -404,7 +404,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                   <TableCell>
                     <TableStatusPagamento evento={evento} inscrito={inscrito} />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right flex space-x-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -418,6 +418,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = `tel:+55${inscrito.telefone}`}>
                           Ligar
                         </DropdownMenuItem>

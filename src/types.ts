@@ -30,8 +30,17 @@ export type EventoType = {
   kits?: string[]
   limitePagamentos?: string
   tiposPagamentos?: string
+  inscricoesAbertas?: boolean
   inscricoes?: InscritoType[]
+  credenciamentoAberto?: boolean
+  credenciamentos?: Credenciamento[]
 }
+
+export type Credenciamento = {
+  credenciadoEm: string
+  comprovante: string
+}
+
 export interface Pagamento {
   txid: string
   codigo: string

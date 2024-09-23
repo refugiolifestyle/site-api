@@ -93,7 +93,7 @@ export default function RootLayout({
                     className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
                   />
                 </div>
-              </form> */}
+              </form>
               <DropdownMenu >
                 <DropdownMenuTrigger asChild className="ml-auto flex-1 sm:flex-initial">
                   <Button variant="secondary" size="icon" className="rounded-full">
@@ -103,13 +103,13 @@ export default function RootLayout({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Luis Portugal</DropdownMenuLabel>
-                  {/* <DropdownMenuSeparator />
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuItem>Support</DropdownMenuItem>
-                  <DropdownMenuSeparator /> */}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem>Sair</DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> */}
             </div>
           </header>
           <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
