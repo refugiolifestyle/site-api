@@ -18,8 +18,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, TicketCheck, User, Users } from "lucide-react"
-import { ReactNode, useState } from "react"
+import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSign, MoreVertical, Search, User, Users } from "lucide-react"
+import { parseAsInteger, useQueryState } from "nuqs"
 import { toast } from "sonner"
 
 export const dynamic = 'auto'
@@ -44,7 +44,7 @@ const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, ev
       await navigator.clipboard.writeText(inscrito.pagamento?.url!)
       toast.success("Copiado com sucesso")
     }} className="text-xs text-white bg-green-700" variant="outline">
-      Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? "/100 Primeiros" : ""}
+      Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
     </Badge>
     case 'unpaid':
     case 'canceled': return <Badge onDoubleClick={async () => {
@@ -77,19 +77,16 @@ const getStatusPagamento = (inscrito: InscritoType) => {
 }
 
 export default function CardTableInscricoes({ celulas, evento, inscricoes }: Props) {
-  const [page, setPage] = useState<number>(1)
-  const [filterGlobal, setFilterGlobal] = useState("")
-  const [rede, setRede] = useState("Todos")
-  const [redeOpen, setRedeOpen] = useState(false)
-  const [celula, setCelula] = useState("Todos")
-  const [celulaOpen, setCelulaOpen] = useState(false)
-  const [situacao, setSituacao] = useState("Todos")
-  const [situacaoOpen, setSituacaoOpen] = useState(false)
+  const [page, setPage] = useQueryState("fip", parseAsInteger.withDefault(1))
+  const [filterGlobal, setFilterGlobal] = useQueryState("fif")
+  const [rede, setRede] = useQueryState("fir")
+  const [celula, setCelula] = useQueryState("fic")
+  const [situacao, setSituacao] = useQueryState("fis")
 
   let inscricoesFiltradas = inscricoes
-  inscricoesFiltradas = inscricoesFiltradas.filter(f => rede == "Todos" ? true : f.rede?.toLowerCase() == rede.toLowerCase())
-  inscricoesFiltradas = inscricoesFiltradas.filter(f => celula == "Todos" ? true : f.celula?.toLowerCase() == celula.toLowerCase())
-  inscricoesFiltradas = inscricoesFiltradas.filter(f => situacao == "Todos" ? true : getStatusPagamento(f).toLowerCase() == situacao.toLowerCase())
+  inscricoesFiltradas = inscricoesFiltradas.filter(f => !rede ? true : f.rede?.toLowerCase() == rede?.toLowerCase())
+  inscricoesFiltradas = inscricoesFiltradas.filter(f => !celula ? true : celula == "Convidado" ? !f.celula : f.celula?.toLowerCase() == celula?.toLowerCase())
+  inscricoesFiltradas = inscricoesFiltradas.filter(f => !situacao ? true : getStatusPagamento(f).toLowerCase() == situacao?.toLowerCase())
   inscricoesFiltradas = inscricoesFiltradas.filter(f => {
     if (!filterGlobal) {
       return true
@@ -133,10 +130,14 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               type="search"
               placeholder="Procurar por..."
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-              onChange={e => setFilterGlobal(e.target.value)}
+              value={filterGlobal || ""}
+              onChange={e => {
+                setFilterGlobal(e.target.value || null)
+                setPage(1)
+              }}
             />
           </div>
-          <Popover open={redeOpen} onOpenChange={setRedeOpen}>
+          <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -145,7 +146,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               >
                 <Users className="h-3.5 w-3.5" />
                 <span className="sr-only xl:not-sr-only">{
-                  rede == "Todos"
+                  !rede
                     ? "Todas as redes"
                     : rede
                 }</span>
@@ -158,13 +159,13 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                   <CommandEmpty>Nenhuma rede encontrada.</CommandEmpty>
                   <CommandGroup>
                     <CommandItem className="cursor-pointer" onSelect={() => {
-                      setRede("Todos")
+                      setRede(null)
                       setPage(1)
                     }}>
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          rede === "Todos" ? "opacity-100" : "opacity-0"
+                          !rede ? "opacity-100" : "opacity-0"
                         )}
                       />
                       Todas as Redes
@@ -188,7 +189,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               </Command>
             </PopoverContent>
           </Popover>
-          <Popover open={celulaOpen} onOpenChange={setCelulaOpen}>
+          <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -197,11 +198,9 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               >
                 <User className="h-3.5 w-3.5" />
                 <span className="sr-only xl:not-sr-only">{
-                  celula == "Todos"
+                  !celula
                     ? "Todas as celulas"
-                    : celula == ""
-                      ? "Convidado"
-                      : celula
+                    : celula
                 }</span>
               </Button>
             </PopoverTrigger>
@@ -212,32 +211,32 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                   <CommandEmpty>Nenhuma celula encontrada.</CommandEmpty>
                   <CommandGroup>
                     <CommandItem className="cursor-pointer" onSelect={() => {
-                      setCelula("Todos")
+                      setCelula(null)
                       setPage(1)
                     }}>
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          celula === "Todos" ? "opacity-100" : "opacity-0"
+                          !celula ? "opacity-100" : "opacity-0"
                         )}
                       />
                       Todas as células
                     </CommandItem>
                     <CommandItem className="cursor-pointer" onSelect={() => {
-                      setCelula("")
+                      setCelula("Convidado")
                       setPage(1)
                     }}>
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          celula === "" ? "opacity-100" : "opacity-0"
+                          celula === "Convidado" ? "opacity-100" : "opacity-0"
                         )}
                       />
                       Convidado
                     </CommandItem>
                     {
                       (
-                        rede == "Todos"
+                        !rede
                           ? celulas
                           : celulas.filter(f => `Rede ${f.rede}` === rede)
                       ).map(s => <CommandItem className="cursor-pointer" key={`Rede ${s.celula}`} onSelect={() => {
@@ -258,7 +257,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               </Command>
             </PopoverContent>
           </Popover>
-          <Popover open={situacaoOpen} onOpenChange={setSituacaoOpen}>
+          <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -267,7 +266,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               >
                 <DollarSign className="h-3.5 w-3.5" />
                 <span className="sr-only xl:not-sr-only">{
-                  situacao == "Todos"
+                  !situacao
                     ? "Todas as situações"
                     : situacao
                 }</span>
@@ -278,13 +277,13 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                 <CommandList>
                   <CommandGroup>
                     <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Todos")
+                      setSituacao(null)
                       setPage(1)
                     }}>
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          situacao === "Todos" ? "opacity-100" : "opacity-0"
+                          situacao === "" ? "opacity-100" : "opacity-0"
                         )}
                       />
                       Todas as situações
@@ -342,25 +341,6 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               </Command>
             </PopoverContent>
           </Popover>
-          <div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1 text-sm"
-              onClick={async () => {
-                let inscricoesText = inscricoesFiltradas
-                  .map(v => ([v.rede, v.celula, v.nome, getStatusPagamento(v)].join('\t')))
-                await navigator.clipboard.writeText([
-                  "Rede\tCélula\tNome\tStatus de pagamento",
-                  ...inscricoesText
-                ].join('\n'))
-                toast.success("Copiado com sucesso")
-              }}
-            >
-              <Copy className="h-3.5 w-3.5" />
-              <span className="sr-only xl:not-sr-only">Copiar dados</span>
-            </Button>
-          </div>
         </div>
         <Table>
           <TableHeader>

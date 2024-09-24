@@ -15,6 +15,7 @@ export type InscritoType = {
   celula?: string
   email?: string
   pagamento?: Pagamento
+  credenciamento?: Credenciamento
 }
 
 export type EventoType = {
@@ -39,6 +40,7 @@ export type EventoType = {
 export type Credenciamento = {
   credenciadoEm: string
   comprovante: string
+  servo: string
 }
 
 export interface Pagamento {

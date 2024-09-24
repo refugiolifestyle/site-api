@@ -1,6 +1,5 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -11,17 +10,15 @@ import {
   CardTitle
 } from "@/components/ui/card"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, Loader2, MoreVertical, Search, User, Users } from "lucide-react"
-import { useState } from "react"
-import { toast } from "sonner"
-import { useForm, SubmitHandler } from "react-hook-form"
+import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSign, Loader2, Search, User, Users } from "lucide-react"
+import { parseAsInteger, useQueryState } from "nuqs"
+import { SubmitHandler, useForm } from "react-hook-form"
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -35,12 +32,10 @@ type Props = {
 type CelulaControle = { rede: string, celula: string, lider?: string, inscricoes: number }
 
 export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }: Props) {
-  const [page, setPage] = useState<number>(1)
-  const [filterGlobal, setFilterGlobal] = useState("")
-  const [rede, setRede] = useState("Todos")
-  const [redeOpen, setRedeOpen] = useState(false)
-  const [celula, setCelula] = useState("Todos")
-  const [celulaOpen, setCelulaOpen] = useState(false)
+  const [page, setPage] = useQueryState("fmp", parseAsInteger.withDefault(1))
+  const [filterGlobal, setFilterGlobal] = useQueryState("fmf")
+  const [rede, setRede] = useQueryState("fmr")
+  const [celula, setCelula] = useQueryState("fmc")
 
   let inscricoesControle: Record<string, CelulaControle> = {}
   inscricoes.forEach(i => {
@@ -59,8 +54,8 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
   })
 
   let celulasFiltradas: CelulaControle[] = Object.values(inscricoesControle)
-  celulasFiltradas = celulasFiltradas.filter(f => rede == "Todos" ? true : f.rede?.toLowerCase() == rede.toLowerCase())
-  celulasFiltradas = celulasFiltradas.filter(f => celula == "Todos" ? true : f.celula?.toLowerCase() == celula.toLowerCase())
+  celulasFiltradas = celulasFiltradas.filter(f => !rede ? true : f.rede?.toLowerCase() == rede?.toLowerCase())
+  celulasFiltradas = celulasFiltradas.filter(f => !celula ? true : celula == "Convidado" ? !f.celula : f.celula?.toLowerCase() == celula?.toLowerCase())
   celulasFiltradas = celulasFiltradas.filter(f => {
     if (!filterGlobal) {
       return true
@@ -69,9 +64,10 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
     return [
       f.rede,
       f.celula?.normalize('NFD').replace(/[\u0300-\u036f]/g, ""),
+      f.lider?.normalize('NFD').replace(/[\u0300-\u036f]/g, ""),
       f.inscricoes
     ]
-      .some(v => String(v!).toLowerCase().startsWith(filterGlobal.toLowerCase()))
+      .some(v => String(v!).toLowerCase().startsWith(filterGlobal.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()))
   })
 
   const sorter = new Intl.Collator('pt-BR', { usage: "sort", numeric: true })
@@ -94,17 +90,21 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-end mb-2 gap-2">
+        <div className="flex items-center mb-2 gap-2">
           <div className="relative flex-1 grow-1">
             <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Procurar por..."
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-              onChange={e => setFilterGlobal(e.target.value)}
+              value={filterGlobal || ""}
+              onChange={e => {
+                setFilterGlobal(e.target.value || null)
+                setPage(1)
+              }}
             />
           </div>
-          <Popover open={redeOpen} onOpenChange={setRedeOpen}>
+          <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -113,7 +113,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               >
                 <Users className="h-3.5 w-3.5" />
                 <span className="sr-only xl:not-sr-only">{
-                  rede == "Todos"
+                  !rede
                     ? "Todas as redes"
                     : rede
                 }</span>
@@ -126,13 +126,13 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                   <CommandEmpty>Nenhuma rede encontrada.</CommandEmpty>
                   <CommandGroup>
                     <CommandItem className="cursor-pointer" onSelect={() => {
-                      setRede("Todos")
+                      setRede(null)
                       setPage(1)
                     }}>
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          rede === "Todos" ? "opacity-100" : "opacity-0"
+                          !rede ? "opacity-100" : "opacity-0"
                         )}
                       />
                       Todas as Redes
@@ -156,7 +156,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               </Command>
             </PopoverContent>
           </Popover>
-          <Popover open={celulaOpen} onOpenChange={setCelulaOpen}>
+          <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -165,11 +165,9 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               >
                 <User className="h-3.5 w-3.5" />
                 <span className="sr-only xl:not-sr-only">{
-                  celula == "Todos"
+                  !celula
                     ? "Todas as celulas"
-                    : celula == ""
-                      ? "Convidado"
-                      : celula
+                    : celula
                 }</span>
               </Button>
             </PopoverTrigger>
@@ -180,32 +178,32 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                   <CommandEmpty>Nenhuma celula encontrada.</CommandEmpty>
                   <CommandGroup>
                     <CommandItem className="cursor-pointer" onSelect={() => {
-                      setCelula("Todos")
+                      setCelula(null)
                       setPage(1)
                     }}>
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          celula === "Todos" ? "opacity-100" : "opacity-0"
+                          !celula ? "opacity-100" : "opacity-0"
                         )}
                       />
                       Todas as células
                     </CommandItem>
                     <CommandItem className="cursor-pointer" onSelect={() => {
-                      setCelula("")
+                      setCelula("Convidado")
                       setPage(1)
                     }}>
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          celula === "" ? "opacity-100" : "opacity-0"
+                          celula === "Convidado" ? "opacity-100" : "opacity-0"
                         )}
                       />
                       Convidado
                     </CommandItem>
                     {
                       (
-                        rede == "Todos"
+                        !rede
                           ? celulas
                           : celulas.filter(f => `Rede ${f.rede}` === rede)
                       ).map(s => <CommandItem className="cursor-pointer" key={`Rede ${s.celula}`} onSelect={() => {
@@ -226,25 +224,6 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               </Command>
             </PopoverContent>
           </Popover>
-          <div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1 text-sm"
-              onClick={async () => {
-                let inscricoesText = celulasFiltradas
-                  .map(v => ([v.rede, v.celula, v.lider, v.inscricoes].join('\t')))
-                await navigator.clipboard.writeText([
-                  "Rede\tCélula\tLíder\tTotal de Inscrições",
-                  ...inscricoesText
-                ].join('\n'))
-                toast.success("Copiado com sucesso")
-              }}
-            >
-              <Copy className="h-3.5 w-3.5" />
-              <span className="sr-only xl:not-sr-only">Copiar dados</span>
-            </Button>
-          </div>
         </div>
         <Table>
           <TableHeader>
@@ -329,7 +308,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
 
 const ConfirmaBateuMeta = ({ celula, evento }: { celula: CelulaControle, evento: EventoType }) => {
   const CONFIRMACAO_NEGADA_ERRO = "Confirmação negada"
-  
+
   const form = useForm()
   const celulaId = celula.celula.replaceAll(/[^\d]+/g, '')
 
