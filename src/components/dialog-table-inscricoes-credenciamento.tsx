@@ -9,11 +9,10 @@ import {
 } from "@/components/ui/dialog";
 
 
-import { Credenciamento, EventoType, InscritoType } from "@/types";
-import { Check, Loader2, TicketCheck } from "lucide-react";
+import { EventoType, InscritoType } from "@/types";
+import { TicketCheck } from "lucide-react";
+import Image from "next/image";
 import { Button } from "./ui/button";
-import { useEffect } from "react";
-import useSWR from "swr";
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -38,31 +37,31 @@ export default function DialogTableCredenciamento({ inscrito, evento }: Props) {
                 <DialogTitle>Credenciamento</DialogTitle>
             </DialogHeader>
             <div className="grid gap-3">
-                        <dl className="grid gap-3">
-                            <div className="flex items-center justify-between space-x-4">
-                                <dt className="text-muted-foreground">Servo</dt>
-                                <dd>{inscrito.credenciamento?.servo}</dd>
-                            </div>
-                            <div className="flex items-center justify-between space-x-4">
-                                <dt className="text-muted-foreground">Data</dt>
-                                <dd>
-                                    {
-                                        new Date(inscrito.credenciamento?.credenciadoEm as string)
-                                            .toLocaleString("pt-BR", {
-                                                dateStyle: "short",
-                                                timeStyle: "short"
-                                            })
-                                    }
-                                </dd>
-                            </div>
-                            <div className="flex items-start justify-between space-x-4">
-                                <dt className="text-muted-foreground">Comprovante</dt>
-                                <dd>
-                                    <img src={inscrito.credenciamento?.comprovante} />
-                                </dd>
-                            </div>
-                        </dl>
+                <dl className="grid gap-3">
+                    <div className="flex items-center justify-between space-x-4">
+                        <dt className="text-muted-foreground">Servo</dt>
+                        <dd>{inscrito.credenciamento?.servo}</dd>
                     </div>
+                    <div className="flex items-center justify-between space-x-4">
+                        <dt className="text-muted-foreground">Data</dt>
+                        <dd>
+                            {
+                                new Date(inscrito.credenciamento?.credenciadoEm as string)
+                                    .toLocaleString("pt-BR", {
+                                        dateStyle: "short",
+                                        timeStyle: "short"
+                                    })
+                            }
+                        </dd>
+                    </div>
+                    <div className="flex items-start justify-between space-x-4">
+                        <dt className="text-muted-foreground">Comprovante</dt>
+                        <dd>
+                            <Image src={inscrito.credenciamento?.comprovante!} alt={"Comprovante de pagamento"} />
+                        </dd>
+                    </div>
+                </dl>
+            </div>
         </DialogContent>
     </Dialog>
 }
