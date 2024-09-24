@@ -24,10 +24,6 @@ type Props = {
 }
 
 export default function DialogTableCredenciamento({ inscrito, evento }: Props) {
-    const { data, isLoading } = useSWR<{ credenciamento: Credenciamento }>(`/api/eventos/${evento.id}/inscricoes/${inscrito.cpf.replaceAll(/[^\d]+/g, "")}/credenciamento`,
-        () => fetch(`/api/eventos/${evento.id}/inscricoes/${inscrito.cpf.replaceAll(/[^\d]+/g, "")}/credenciamento`)
-            .then(r => r.json()))
-
     return <Dialog>
         <DialogTrigger asChild>
             <Button
@@ -41,20 +37,17 @@ export default function DialogTableCredenciamento({ inscrito, evento }: Props) {
             <DialogHeader className="text-left">
                 <DialogTitle>Credenciamento</DialogTitle>
             </DialogHeader>
-            {
-                isLoading
-                    ? <Loader2 className="size-4 animate-spin" />
-                    : <div className="grid gap-3">
+            <div className="grid gap-3">
                         <dl className="grid gap-3">
                             <div className="flex items-center justify-between space-x-4">
                                 <dt className="text-muted-foreground">Servo</dt>
-                                <dd>{data?.credenciamento.servo}</dd>
+                                <dd>{inscrito.credenciamento?.servo}</dd>
                             </div>
                             <div className="flex items-center justify-between space-x-4">
                                 <dt className="text-muted-foreground">Data</dt>
                                 <dd>
                                     {
-                                        new Date(data?.credenciamento.credenciadoEm as string)
+                                        new Date(inscrito.credenciamento?.credenciadoEm as string)
                                             .toLocaleString("pt-BR", {
                                                 dateStyle: "short",
                                                 timeStyle: "short"
@@ -65,12 +58,11 @@ export default function DialogTableCredenciamento({ inscrito, evento }: Props) {
                             <div className="flex items-start justify-between space-x-4">
                                 <dt className="text-muted-foreground">Comprovante</dt>
                                 <dd>
-                                    <img src={data?.credenciamento.comprovante} />
+                                    <img src={inscrito.credenciamento?.comprovante} />
                                 </dd>
                             </div>
                         </dl>
                     </div>
-            }
         </DialogContent>
     </Dialog>
 }

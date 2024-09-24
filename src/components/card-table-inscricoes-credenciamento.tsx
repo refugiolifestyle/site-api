@@ -466,7 +466,7 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                                                     <TableCell>
                                                         <TableStatusPagamento evento={evento} inscrito={inscrito} />
                                                     </TableCell>
-                                                    <TableCell className="text-right flex items-center space-x-2">
+                                                    <TableCell className="text-right">
                                                         {
                                                             inscrito.credenciamento
                                                             ? <DialogTableCredenciamento evento={evento} inscrito={inscrito} />

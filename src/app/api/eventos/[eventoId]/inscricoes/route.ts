@@ -1,6 +1,7 @@
-import { database } from "@/firebase";
+import { database, storage } from "@/firebase";
 import { InscritoType } from "@/types";
 import { equalTo, get, orderByChild, query, ref, set } from "firebase/database";
+import { getDownloadURL, ref as refStorage } from "firebase/storage";
 
 type ApiProps = {
     params: {
@@ -13,6 +14,13 @@ export async function GET(_: Request, { params }: ApiProps) {
     const snapshotInscricoes = await get(refInscricoes)
 
     const inscricoes = Object.values(snapshotInscricoes.val()) as InscritoType[]
+    for (let inscrito of inscricoes) {
+        if (inscrito.credenciamento) {
+            let comprovanteRef = refStorage(storage, inscrito.credenciamento.comprovante)
+            let comprovante  = await getDownloadURL(comprovanteRef)
+            inscrito.credenciamento.comprovante = comprovante
+        }
+    }
 
     return Response.json({ inscricoes })
 }
