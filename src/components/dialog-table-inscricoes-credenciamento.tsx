@@ -57,7 +57,7 @@ export default function DialogTableCredenciamento({ inscrito, evento }: Props) {
                     <div className="flex items-start justify-between space-x-4">
                         <dt className="text-muted-foreground">Comprovante</dt>
                         <dd>
-                            <Image src={inscrito.credenciamento?.comprovante!} alt={"Comprovante de pagamento"} />
+                            <img src={inscrito.credenciamento?.comprovante!} alt={"Comprovante de pagamento"} />
                         </dd>
                     </div>
                 </dl>
