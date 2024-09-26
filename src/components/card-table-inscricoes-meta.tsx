@@ -262,7 +262,8 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                   <TableCell>
                     {
                       celulaFiltrada.celula != 'Convidado'
-                      && <ConfirmaBateuMeta evento={evento} celula={celulaFiltrada} />
+                        ? <ConfirmaBateuMeta evento={evento} celula={celulaFiltrada} />
+                        : '-'
                     }
                   </TableCell>
                 </TableRow>)
