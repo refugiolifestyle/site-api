@@ -67,7 +67,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
       f.lider?.normalize('NFD').replace(/[\u0300-\u036f]/g, ""),
       f.inscricoes
     ]
-      .some(v => String(v!).toLowerCase().startsWith(filterGlobal.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()))
+      .some(v => String(v!).toLowerCase().includes(filterGlobal.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()))
   })
 
   const sorter = new Intl.Collator('pt-BR', { usage: "sort", numeric: true })

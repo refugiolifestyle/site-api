@@ -100,7 +100,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
       new Date(f.pagamento?.pagoEm!).toLocaleString('pt-BR'),
       getStatusPagamento(f)
     ]
-      .some(v => v?.toLowerCase().startsWith(filterGlobal.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()))
+      .some(v => v?.toLowerCase().includes(filterGlobal.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()))
   })
 
   const sorter = new Intl.Collator('pt-BR', { usage: "sort", numeric: true })
