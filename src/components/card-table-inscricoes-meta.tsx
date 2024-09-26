@@ -232,7 +232,9 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                 Rede
               </TableHead>
               <TableHead>Célula</TableHead>
-              <TableHead>Líder</TableHead>
+              <TableHead className="hidden md:table-cell">
+                Líder
+              </TableHead>
               <TableHead>Total de Inscrições</TableHead>
               <TableHead>Meta</TableHead>
             </TableRow>
@@ -247,8 +249,11 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                   </TableCell>
                   <TableCell>
                     {celulaFiltrada.celula || 'Convidado'}
+                    <div className="text-sm text-muted-foreground md:hidden lg:hidden xl:hidden">
+                      {celulaFiltrada.lider}
+                    </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {celulaFiltrada.lider || '-'}
                   </TableCell>
                   <TableCell>

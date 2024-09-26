@@ -35,13 +35,13 @@ type Props = {
 
 const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, evento: EventoType }) => {
     if (!inscrito.pagamento) {
-        return <Badge className="text-xs" variant="outline">
+        return <Badge className="text-xs text-center" variant="outline">
             Cadastrado
         </Badge>
     }
 
     if (inscrito.credenciamento) {
-        return <Badge className="text-xs bg-blue-300" variant="outline">
+        return <Badge className="text-xs text-center bg-blue-300" variant="outline">
             Credenciado
         </Badge>
     }
@@ -51,20 +51,20 @@ const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, ev
         case 'CONCLUIDA': return <Badge onDoubleClick={async () => {
             await navigator.clipboard.writeText(inscrito.pagamento?.url!)
             toast.success("Copiado com sucesso")
-        }} className="text-xs text-white bg-green-700" variant="outline">
+        }} className="text-xs text-center text-white bg-green-700" variant="outline">
             Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
         </Badge>
         case 'unpaid':
         case 'canceled': return <Badge onDoubleClick={async () => {
             await navigator.clipboard.writeText(inscrito.pagamento?.url!)
             toast.success("Copiado com sucesso")
-        }} className="text-xs text-white bg-red-700" variant="outline">
+        }} className="text-xs text-center text-white bg-red-700" variant="outline">
             Não pago
         </Badge>
         default: return <Badge onDoubleClick={async () => {
             await navigator.clipboard.writeText(inscrito.pagamento?.url!)
             toast.success("Copiado com sucesso")
-        }} className="text-xs text-white bg-orange-500" variant="outline">
+        }} className="text-xs text-center text-white bg-orange-500" variant="outline">
             Aguardando
         </Badge>
     }
@@ -92,8 +92,8 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
     const { data, isLoading, isValidating } = useSWR<{ inscricoes: InscritoType[] }>(`evento/${evento.id}/inscricoes`,
         () => fetch(`/api/eventos/${evento.id}/inscricoes`)
             .then(r => r.json()), {
-                revalidateOnFocus: false
-            })
+        revalidateOnFocus: false
+    })
 
     const [page, setPage] = useQueryState("fcp", parseAsInteger.withDefault(1))
     const [filterGlobal, setFilterGlobal] = useQueryState("fcf")
@@ -456,6 +456,9 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                                                     </TableCell>
                                                     <TableCell>
                                                         {inscrito.nome}
+                                                        <div className="text-sm text-muted-foreground md:hidden lg:hidden xl:hidden">
+                                                            {inscrito.celula || 'Convidado'}
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell className="hidden sm:table-cell" onDoubleClick={async () => {
                                                         await navigator.clipboard.writeText(inscrito.cpf)
@@ -469,8 +472,8 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                                                     <TableCell className="text-right">
                                                         {
                                                             inscrito.credenciamento
-                                                            ? <DialogTableCredenciamento evento={evento} inscrito={inscrito} />
-                                                            : <DialogTableCredenciamentoCamera evento={evento} inscrito={inscrito} servo={servo} />
+                                                                ? <DialogTableCredenciamento evento={evento} inscrito={inscrito} />
+                                                                : <DialogTableCredenciamentoCamera evento={evento} inscrito={inscrito} servo={servo} />
                                                         }
                                                     </TableCell>
                                                 </TableRow>)

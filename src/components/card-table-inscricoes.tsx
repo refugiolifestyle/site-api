@@ -33,7 +33,7 @@ type Props = {
 
 const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, evento: EventoType }) => {
   if (!inscrito.pagamento) {
-    return <Badge className="text-xs" variant="outline">
+    return <Badge className="text-xs text-center" variant="outline">
       Cadastrado
     </Badge>
   }
@@ -43,20 +43,20 @@ const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, ev
     case 'CONCLUIDA': return <Badge onDoubleClick={async () => {
       await navigator.clipboard.writeText(inscrito.pagamento?.url!)
       toast.success("Copiado com sucesso")
-    }} className="text-xs text-white bg-green-700" variant="outline">
+    }} className="text-xs text-center text-white bg-green-700" variant="outline">
       Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
     </Badge>
     case 'unpaid':
     case 'canceled': return <Badge onDoubleClick={async () => {
       await navigator.clipboard.writeText(inscrito.pagamento?.url!)
       toast.success("Copiado com sucesso")
-    }} className="text-xs text-white bg-red-700" variant="outline">
+    }} className="text-xs text-center text-white bg-red-700" variant="outline">
       Não pago
     </Badge>
     default: return <Badge onDoubleClick={async () => {
       await navigator.clipboard.writeText(inscrito.pagamento?.url!)
       toast.success("Copiado com sucesso")
-    }} className="text-xs text-white bg-orange-500" variant="outline">
+    }} className="text-xs text-center text-white bg-orange-500" variant="outline">
       Aguardando
     </Badge>
   }
@@ -374,6 +374,9 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                   </TableCell>
                   <TableCell>
                     {inscrito.nome}
+                    <div className="text-sm text-muted-foreground md:hidden lg:hidden xl:hidden">
+                      {inscrito.celula || 'Convidado'}
+                    </div>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell" onDoubleClick={async () => {
                     await navigator.clipboard.writeText(inscrito.cpf)
@@ -384,7 +387,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                   <TableCell>
                     <TableStatusPagamento evento={evento} inscrito={inscrito} />
                   </TableCell>
-                  <TableCell className="text-right flex space-x-2">
+                  <TableCell className="text-right space-x-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
