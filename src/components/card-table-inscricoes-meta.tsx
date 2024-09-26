@@ -16,9 +16,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSign, Loader2, Search, User, Users } from "lucide-react"
+import { ChartNoAxesCombined, Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSign, Loader2, Search, User, Users } from "lucide-react"
 import { parseAsInteger, useQueryState } from "nuqs"
 import { SubmitHandler, useForm } from "react-hook-form"
+import { Badge } from "./ui/badge"
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -29,13 +30,51 @@ type Props = {
   inscricoes: InscritoType[]
 }
 
-type CelulaControle = { rede: string, celula: string, lider?: string, inscricoes: number }
+type CelulaControle = {
+  rede: string,
+  celula: string,
+  lider?: string,
+  inscricoes: number
+}
+
+function getMetaStatus(evento: EventoType, celulaControle: CelulaControle) {
+  if (celulaControle.celula == "Convidado") {
+    return ""
+  }
+
+  if (celulaControle.inscricoes < 10) {
+    return "Não chegou na Meta"
+  } else {
+    const celulaId = celulaControle.celula.replaceAll(/[^\d]+/g, '')
+    return evento.metaBatida?.hasOwnProperty(celulaId)
+      ? "Meta confirmada"
+      : "Chegou na meta"
+  }
+}
+
+function MetaStatus({ evento, celulaControle }: { evento: EventoType, celulaControle: CelulaControle }) {
+  if (celulaControle.inscricoes < 10) {
+    return <Badge className="text-xs text-center" variant="destructive">
+      Não chegou na Meta
+    </Badge>
+  } else {
+    const celulaId = celulaControle.celula.replaceAll(/[^\d]+/g, '')
+    return evento.metaBatida?.hasOwnProperty(celulaId)
+      ? <Badge className="text-xs text-center text-white bg-green-700" variant="outline">
+        Meta confirmada
+      </Badge>
+      : <Badge className="text-xs text-center" variant="outline">
+        Chegou na Meta
+      </Badge>
+  }
+}
 
 export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }: Props) {
   const [page, setPage] = useQueryState("fmp", parseAsInteger.withDefault(1))
   const [filterGlobal, setFilterGlobal] = useQueryState("fmf")
   const [rede, setRede] = useQueryState("fmr")
   const [celula, setCelula] = useQueryState("fmc")
+  const [situacao, setSituacao] = useQueryState("fms")
 
   let inscricoesControle: Record<string, CelulaControle> = {}
   inscricoes.forEach(i => {
@@ -56,6 +95,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
   let celulasFiltradas: CelulaControle[] = Object.values(inscricoesControle)
   celulasFiltradas = celulasFiltradas.filter(f => !rede ? true : f.rede?.toLowerCase() == rede?.toLowerCase())
   celulasFiltradas = celulasFiltradas.filter(f => !celula ? true : celula == "Convidado" ? !f.celula : f.celula?.toLowerCase() == celula?.toLowerCase())
+  celulasFiltradas = celulasFiltradas.filter(f => !situacao ? true : getMetaStatus(evento, f) == situacao)
   celulasFiltradas = celulasFiltradas.filter(f => {
     if (!filterGlobal) {
       return true
@@ -65,6 +105,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
       f.rede,
       f.celula?.normalize('NFD').replace(/[\u0300-\u036f]/g, ""),
       f.lider?.normalize('NFD').replace(/[\u0300-\u036f]/g, ""),
+      getMetaStatus(evento, f).toLowerCase(),
       f.inscricoes
     ]
       .some(v => String(v!).toLowerCase().includes(filterGlobal.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()))
@@ -82,11 +123,13 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
   return <div className="grid gap-6">
     <Card>
       <CardHeader>
-        <CardTitle>Meta</CardTitle>
+        <CardTitle>Metas por célula</CardTitle>
         <CardDescription>
           {
-            celulasFiltradas.filter(f => f.inscricoes >= evento.meta!).length
-          } inscrições que bateram a meta
+            Object.values(inscricoesControle).filter(f => f.inscricoes >= evento.meta! && getMetaStatus(evento, f) === "Meta confirmada").length
+          } confirmadas de {
+            Object.values(inscricoesControle).filter(f => f.inscricoes >= evento.meta!).length
+          } que chegaram na meta
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -224,6 +267,78 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               </Command>
             </PopoverContent>
           </Popover>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 text-sm"
+              >
+                <ChartNoAxesCombined className="h-3.5 w-3.5" />
+                <span className="sr-only xl:not-sr-only">{
+                  !situacao
+                    ? "Todas as situações"
+                    : situacao
+                }</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0">
+              <Command>
+                <CommandList>
+                  <CommandGroup>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setSituacao(null)
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          !situacao ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Todas as situações
+                    </CommandItem>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setSituacao("Meta confirmada")
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          situacao === "Meta confirmada" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Meta confirmada
+                    </CommandItem>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setSituacao("Chegou na meta")
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          situacao === "Chegou na meta" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Chegou na meta
+                    </CommandItem>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setSituacao("Não chegou na Meta")
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          situacao === "Não chegou na Meta" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Não chegou na Meta
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
         <Table>
           <TableHeader>
@@ -237,6 +352,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               </TableHead>
               <TableHead>Total de Inscrições</TableHead>
               <TableHead>Meta</TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -262,8 +378,13 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                   <TableCell>
                     {
                       celulaFiltrada.celula != 'Convidado'
-                        ? <ConfirmaBateuMeta evento={evento} celula={celulaFiltrada} />
-                        : '-'
+                      && <MetaStatus evento={evento} celulaControle={celulaFiltrada} />
+                    }
+                  </TableCell>
+                  <TableCell>
+                    {
+                      celulaFiltrada.celula != 'Convidado'
+                      && <ConfirmaBateuMeta evento={evento} celula={celulaFiltrada} />
                     }
                   </TableCell>
                 </TableRow>)
@@ -344,7 +465,7 @@ const ConfirmaBateuMeta = ({ celula, evento }: { celula: CelulaControle, evento:
   return celula.inscricoes >= evento.meta!
     ? form.formState.isSubmitSuccessful
       || evento.metaBatida?.hasOwnProperty(celulaId)
-      ? 'Confirmada'
+      ? null
       : <form onSubmit={form.handleSubmit(onSubmit)}>
         <Button
           type="submit"
