@@ -18,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSign, MoreVertical, Search, User, Users } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, User, Users } from "lucide-react"
 import { parseAsInteger, useQueryState } from "nuqs"
 import { toast } from "sonner"
 
@@ -341,6 +341,23 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               </Command>
             </PopoverContent>
           </Popover>
+          <Button
+              variant="outline"
+              size="sm"
+              className="gap-1 text-sm"
+              onClick={async () => {
+                let inscricoesText = inscricoesFiltradas
+                  .map(v => ([v.rede, v.celula, v.nome, getStatusPagamento(v)].join('\t')))
+                await navigator.clipboard.writeText([
+                  "Rede\tCélula\tNome\tStatus de pagamento",
+                  ...inscricoesText
+                ].join('\n'))
+                toast.success("Copiado com sucesso")
+              }}
+            >
+              <Copy className="h-3.5 w-3.5" />
+              <span className="sr-only xl:not-sr-only">Copiar dados</span>
+            </Button>
         </div>
         <Table>
           <TableHeader>
