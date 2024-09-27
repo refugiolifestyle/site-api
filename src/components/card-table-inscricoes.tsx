@@ -21,6 +21,7 @@ import { CelulaType, EventoType, InscritoType } from "@/types"
 import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, User, Users } from "lucide-react"
 import { parseAsInteger, useQueryState } from "nuqs"
 import { toast } from "sonner"
+import DialogTablePagamentoCamera from "./dialog-table-inscricoes-pagamento-camera"
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -33,56 +34,56 @@ type Props = {
 
 const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, evento: EventoType }) => {
   if (!inscrito.pagamento) {
-      return <Badge className="text-xs text-center" variant="outline">
-          Cadastrado
-      </Badge>
+    return <Badge className="text-xs text-center" variant="outline">
+      Cadastrado
+    </Badge>
   }
 
   if (inscrito.credenciamento) {
-      return <Badge className="text-xs text-center bg-blue-300" variant="outline">
-          Credenciado{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
-      </Badge>
+    return <Badge className="text-xs text-center bg-blue-300" variant="outline">
+      Credenciado{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
+    </Badge>
   }
 
   switch (inscrito.pagamento.status) {
-      case 'paid':
-      case 'CONCLUIDA': return <Badge onDoubleClick={async () => {
-          await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-          toast.success("Copiado com sucesso")
-      }} className="text-xs text-center text-white bg-green-700" variant="outline">
-          Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
-      </Badge>
-      case 'unpaid':
-      case 'canceled': return <Badge onDoubleClick={async () => {
-          await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-          toast.success("Copiado com sucesso")
-      }} className="text-xs text-center text-white bg-red-700" variant="outline">
-          Não pago
-      </Badge>
-      default: return <Badge onDoubleClick={async () => {
-          await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-          toast.success("Copiado com sucesso")
-      }} className="text-xs text-center text-white bg-orange-500" variant="outline">
-          Aguardando
-      </Badge>
+    case 'paid':
+    case 'CONCLUIDA': return <Badge onDoubleClick={async () => {
+      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
+      toast.success("Copiado com sucesso")
+    }} className="text-xs text-center text-white bg-green-700" variant="outline">
+      Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
+    </Badge>
+    case 'unpaid':
+    case 'canceled': return <Badge onDoubleClick={async () => {
+      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
+      toast.success("Copiado com sucesso")
+    }} className="text-xs text-center text-white bg-red-700" variant="outline">
+      Não pago
+    </Badge>
+    default: return <Badge onDoubleClick={async () => {
+      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
+      toast.success("Copiado com sucesso")
+    }} className="text-xs text-center text-white bg-orange-500" variant="outline">
+      Aguardando
+    </Badge>
   }
 }
 
 const getStatusPagamento = (inscrito: InscritoType) => {
   if (!inscrito.pagamento) {
-      return "Cadastrado"
+    return "Cadastrado"
   }
 
   if (inscrito.credenciamento) {
-      return "Credenciado"
+    return "Credenciado"
   }
 
   switch (inscrito.pagamento.status) {
-      case 'paid':
-      case 'CONCLUIDA': return "Pago"
-      case 'unpaid':
-      case 'canceled': return "Não pago"
-      default: return "Aguardando"
+    case 'paid':
+    case 'CONCLUIDA': return "Pago"
+    case 'unpaid':
+    case 'canceled': return "Não pago"
+    default: return "Aguardando"
   }
 }
 export default function CardTableInscricoes({ celulas, evento, inscricoes }: Props) {
@@ -363,22 +364,22 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
             </PopoverContent>
           </Popover>
           <Button
-              variant="outline"
-              size="sm"
-              className="gap-1 text-sm"
-              onClick={async () => {
-                let inscricoesText = inscricoesFiltradas
-                  .map(v => ([v.rede, v.celula, v.nome, getStatusPagamento(v)].join('\t')))
-                await navigator.clipboard.writeText([
-                  "Rede\tCélula\tNome\tStatus de pagamento",
-                  ...inscricoesText
-                ].join('\n'))
-                toast.success("Copiado com sucesso")
-              }}
-            >
-              <Copy className="h-3.5 w-3.5" />
-              <span className="sr-only xl:not-sr-only">Copiar dados</span>
-            </Button>
+            variant="outline"
+            size="sm"
+            className="gap-1 text-sm"
+            onClick={async () => {
+              let inscricoesText = inscricoesFiltradas
+                .map(v => ([v.rede, v.celula, v.nome, getStatusPagamento(v)].join('\t')))
+              await navigator.clipboard.writeText([
+                "Rede\tCélula\tNome\tStatus de pagamento",
+                ...inscricoesText
+              ].join('\n'))
+              toast.success("Copiado com sucesso")
+            }}
+          >
+            <Copy className="h-3.5 w-3.5" />
+            <span className="sr-only xl:not-sr-only">Copiar dados</span>
+          </Button>
         </div>
         <Table>
           <TableHeader>
@@ -425,7 +426,11 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                   <TableCell>
                     <TableStatusPagamento evento={evento} inscrito={inscrito} />
                   </TableCell>
-                  <TableCell className="text-right space-x-2">
+                  <TableCell className="text-right flex space-x-2">
+                    {
+                      !["CONCLUIDA", "paid"].includes(inscrito.pagamento?.status!)
+                      && <DialogTablePagamentoCamera evento={evento} inscrito={inscrito} />
+                    }
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
