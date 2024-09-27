@@ -33,49 +33,58 @@ type Props = {
 
 const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, evento: EventoType }) => {
   if (!inscrito.pagamento) {
-    return <Badge className="text-xs text-center" variant="outline">
-      Cadastrado
-    </Badge>
+      return <Badge className="text-xs text-center" variant="outline">
+          Cadastrado
+      </Badge>
+  }
+
+  if (inscrito.credenciamento) {
+      return <Badge className="text-xs text-center bg-blue-300" variant="outline">
+          Credenciado{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
+      </Badge>
   }
 
   switch (inscrito.pagamento.status) {
-    case 'paid':
-    case 'CONCLUIDA': return <Badge onDoubleClick={async () => {
-      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-      toast.success("Copiado com sucesso")
-    }} className="text-xs text-center text-white bg-green-700" variant="outline">
-      Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
-    </Badge>
-    case 'unpaid':
-    case 'canceled': return <Badge onDoubleClick={async () => {
-      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-      toast.success("Copiado com sucesso")
-    }} className="text-xs text-center text-white bg-red-700" variant="outline">
-      Não pago
-    </Badge>
-    default: return <Badge onDoubleClick={async () => {
-      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-      toast.success("Copiado com sucesso")
-    }} className="text-xs text-center text-white bg-orange-500" variant="outline">
-      Aguardando
-    </Badge>
+      case 'paid':
+      case 'CONCLUIDA': return <Badge onDoubleClick={async () => {
+          await navigator.clipboard.writeText(inscrito.pagamento?.url!)
+          toast.success("Copiado com sucesso")
+      }} className="text-xs text-center text-white bg-green-700" variant="outline">
+          Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
+      </Badge>
+      case 'unpaid':
+      case 'canceled': return <Badge onDoubleClick={async () => {
+          await navigator.clipboard.writeText(inscrito.pagamento?.url!)
+          toast.success("Copiado com sucesso")
+      }} className="text-xs text-center text-white bg-red-700" variant="outline">
+          Não pago
+      </Badge>
+      default: return <Badge onDoubleClick={async () => {
+          await navigator.clipboard.writeText(inscrito.pagamento?.url!)
+          toast.success("Copiado com sucesso")
+      }} className="text-xs text-center text-white bg-orange-500" variant="outline">
+          Aguardando
+      </Badge>
   }
 }
 
 const getStatusPagamento = (inscrito: InscritoType) => {
   if (!inscrito.pagamento) {
-    return "Cadastrado"
+      return "Cadastrado"
+  }
+
+  if (inscrito.credenciamento) {
+      return "Credenciado"
   }
 
   switch (inscrito.pagamento.status) {
-    case 'paid':
-    case 'CONCLUIDA': return "Pago"
-    case 'unpaid':
-    case 'canceled': return "Não pago"
-    default: return "Aguardando"
+      case 'paid':
+      case 'CONCLUIDA': return "Pago"
+      case 'unpaid':
+      case 'canceled': return "Não pago"
+      default: return "Aguardando"
   }
 }
-
 export default function CardTableInscricoes({ celulas, evento, inscricoes }: Props) {
   const [page, setPage] = useQueryState("fip", parseAsInteger.withDefault(1))
   const [filterGlobal, setFilterGlobal] = useQueryState("fif")
@@ -287,6 +296,18 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                         )}
                       />
                       Todas as situações
+                    </CommandItem>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setSituacao("Credenciado")
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          situacao === "Credenciado" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Credenciado
                     </CommandItem>
                     <CommandItem className="cursor-pointer" onSelect={() => {
                       setSituacao("Pago")

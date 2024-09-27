@@ -17,13 +17,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { CelulaType, EventoType, InscritoType } from "@/types";
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSign, Loader2, Plus, Search, Trash, User, Users } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSign, Loader2, Plus, Search, Trash, User, Users, X } from "lucide-react";
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { toast } from "sonner";
 import useSessionStorageState from 'use-session-storage-state';
 import DialogTableCredenciamentoCamera from "./dialog-table-inscricoes-credenciamento-camera";
 import useSWR from 'swr'
 import DialogTableCredenciamento from "./dialog-table-inscricoes-credenciamento";
+import { useRef } from "react";
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -42,7 +43,7 @@ const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, ev
 
     if (inscrito.credenciamento) {
         return <Badge className="text-xs text-center bg-blue-300" variant="outline">
-            Credenciado
+            Credenciado{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
         </Badge>
     }
 
@@ -97,6 +98,7 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
 
     const [page, setPage] = useQueryState("fcp", parseAsInteger.withDefault(1))
     const [filterGlobal, setFilterGlobal] = useQueryState("fcf")
+    const filterGlobalRef = useRef<HTMLInputElement>(null)
 
     const [servo, setServo, { removeItem: limparServo }] = useSessionStorageState<string>('servo-credenciamento')
     const adicionarServo = () => {
@@ -111,6 +113,17 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
         }
 
         setServo(servoPrompt)
+    }
+
+    const onLimparFiltro = () => {
+        setFilterGlobal(null)
+        if (filterGlobalRef.current) {
+            filterGlobalRef.current.value = ""
+        }
+    }
+
+    const onFiltrar = () => {
+        setFilterGlobal(filterGlobalRef.current?.value as string)
     }
 
     let inscricoesFiltradas = data?.inscricoes || []
@@ -134,10 +147,6 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
     inscricoesFiltradas.sort((a, b) => sorter.compare(`${a.rede}-${a.celula}-${getStatusPagamento(a)}-${a.nome}`, `${b.rede}-${b.celula}-${getStatusPagamento(b)}-${b.nome}`))
 
     let pagesLength = inscricoesFiltradas.length ? Math.ceil(inscricoesFiltradas.length / 10) : 0
-
-    let redes = celulas.map(c => `Rede ${c.rede}`)
-        .filter((v, i, a) => a.lastIndexOf(v) === i)
-        .sort((a, b) => new Intl.Collator("pt-BR", { numeric: true }).compare(a, b))
 
     return <div className="grid gap-6">
         <Card>
@@ -171,7 +180,7 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                         <div className="flex-1">
                             <CardTitle>Credenciamento</CardTitle>
                             <CardDescription>
-                                {inscricoesFiltradas.filter(f => getStatusPagamento(f) === "Credenciado").length} de {data?.inscricoes.filter(f => getStatusPagamento(f) === "Pago").length} inscrições credenciadas
+                                {data?.inscricoes.filter(f => getStatusPagamento(f) === "Credenciado").length} de {data?.inscricoes.filter(f => getStatusPagamento(f) === "Pago").length} inscrições credenciadas
                             </CardDescription>
                         </div>
                         {
@@ -188,19 +197,22 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                         : <>
                             <CardContent>
                                 <div className="flex items-center mb-2 gap-2">
-                                    <div className="relative flex-1 grow-1">
-                                        <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            type="search"
-                                            placeholder="Procurar por..."
-                                            className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-                                            value={filterGlobal || ""}
-                                            onChange={e => {
-                                                setFilterGlobal(e.target.value || null)
-                                                setPage(1)
-                                            }}
-                                        />
-                                    </div>
+                                    <Input
+                                        ref={filterGlobalRef}
+                                        type="search"
+                                        placeholder="Procurar por nome, célula, rede, cpf"
+                                        className="w-full flex-1 rounded-lg bg-background"
+                                    />
+                                    {
+                                        filterGlobal
+                                        && <Button onClick={onLimparFiltro} variant={"outline"} size={"icon"}>
+                                            <X className="size-4" />
+                                        </Button>
+                                    }
+                                    <Button className="space-x-2" variant={"outline"} onClick={onFiltrar}>
+                                        <Search className="size-4" />
+                                        <span className="sr-only lg:not-sr-only">Pesquisar</span>
+                                    </Button>
                                 </div>
                                 <Table>
                                     <TableHeader>
@@ -251,7 +263,9 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                                                         {
                                                             inscrito.credenciamento
                                                                 ? <DialogTableCredenciamento evento={evento} inscrito={inscrito} />
-                                                                : <DialogTableCredenciamentoCamera evento={evento} inscrito={inscrito} servo={servo} />
+                                                                : getStatusPagamento(inscrito) === "Pago"
+                                                                    ? <DialogTableCredenciamentoCamera evento={evento} inscrito={inscrito} servo={servo} />
+                                                                    : null
                                                         }
                                                     </TableCell>
                                                 </TableRow>)

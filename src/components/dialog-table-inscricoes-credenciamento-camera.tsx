@@ -34,7 +34,7 @@ export default function DialogTableCredenciamentoCamera({ evento, inscrito, serv
 
     const { mutate } = useSWRConfig()
     const { trigger, isMutating, error } = useSWRMutation(`/api/eventos/${evento.id}/inscricoes/${inscrito.cpf.replaceAll(/[^\d]+/g, "")}/credenciamento`,
-        (url, { arg }: { arg: Partial<Credenciamento>}) => fetch(url, { method: "PATCH", body: JSON.stringify(arg) }).then(r => r.json()))
+        (url, { arg }: { arg: Partial<Credenciamento>}) => fetch(url, { method: "PATCH", body: JSON.stringify(arg), signal: AbortSignal.timeout(60000) }).then(r => r.json()))
 
     const salvar = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length == 0) {
@@ -56,8 +56,13 @@ export default function DialogTableCredenciamentoCamera({ evento, inscrito, serv
                 setDialogOpen(false)
                 mutate(`evento/${evento.id}/inscricoes`)
                 alert("Credenciamento realizado com sucesso")
-            } catch (e) {
-                alert("Falha ao credenciar o inscrito")
+            } catch (e: any) {
+                if (e.name === "TimeoutError") {
+                    alert("Houve uma grande demora, tente novamente")
+                } else {
+                    alert("Falha ao credenciar o inscrito")
+                }
+
                 console.error(e)
             }
         }
