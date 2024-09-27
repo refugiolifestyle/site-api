@@ -180,7 +180,7 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                         <div className="flex-1">
                             <CardTitle>Credenciamento</CardTitle>
                             <CardDescription>
-                                {data?.inscricoes.filter(f => getStatusPagamento(f) === "Credenciado").length} de {data?.inscricoes.filter(f => getStatusPagamento(f) === "Pago").length} inscrições credenciadas
+                                {data?.inscricoes.filter(f => getStatusPagamento(f) === "Credenciado").length} de {data?.inscricoes.filter(f => ["Pago", "Credenciado"].includes(getStatusPagamento(f))).length} inscrições credenciadas
                             </CardDescription>
                         </div>
                         {

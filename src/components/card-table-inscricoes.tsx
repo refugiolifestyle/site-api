@@ -127,7 +127,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
         <CardTitle>Inscrições</CardTitle>
         <CardDescription>
           {
-            inscricoesFiltradas.filter(f => getStatusPagamento(f) === "Pago").length
+            inscricoesFiltradas.filter(f => ["Pago", "Credenciado"].includes(getStatusPagamento(f))).length
           } inscrições finalizadas
         </CardDescription>
       </CardHeader>
