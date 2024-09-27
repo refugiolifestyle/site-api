@@ -20,11 +20,16 @@ export async function POST(request: Request) {
             }
             else {
                 let refPagamento = snapshotPagamento.val()
-                await Promise.all([
-                    set(ref(database, `${refPagamento}/status`), "CONCLUIDA"),
-                    set(ref(database, `${refPagamento}/pagoEm`), pixReturn.horario),
-                    set(ref(database, `${refPagamento}/pixID`), pixReturn.endToEndId)
-                ])
+                let statusClientSnap = await get(ref(database, `${refPagamento}/status`))
+                let statusClient = statusClientSnap.val() as string
+
+                if (!["CONCLUIDA", "paid"].includes(statusClient)) {
+                    await Promise.all([
+                        set(ref(database, `${refPagamento}/status`), "CONCLUIDA"),
+                        set(ref(database, `${refPagamento}/pagoEm`), pixReturn.horario),
+                        set(ref(database, `${refPagamento}/pixID`), pixReturn.endToEndId)
+                    ])
+                }
             }
         }
 

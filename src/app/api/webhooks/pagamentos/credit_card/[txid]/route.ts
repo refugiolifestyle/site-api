@@ -38,10 +38,15 @@ export async function POST(request: Request, { params }: Props) {
     }
     else {
         let refPagamento = snapshotPagamento.val()
-        await set(ref(database, `${refPagamento}/status`), notification?.status.current)
+        let statusClientSnap = await get(ref(database, `${refPagamento}/status`))
+        let statusClient = statusClientSnap.val() as string
 
-        if (notification?.status.current == 'paid') {
-            await set(ref(database, `${refPagamento}/pagoEm`), notification?.created_at)
+        if (!["CONCLUIDA", "paid"].includes(statusClient)) {
+            await set(ref(database, `${refPagamento}/status`), notification?.status.current)
+
+            if (notification?.status.current == 'paid') {
+                await set(ref(database, `${refPagamento}/pagoEm`), notification?.created_at)
+            }
         }
     }
 
