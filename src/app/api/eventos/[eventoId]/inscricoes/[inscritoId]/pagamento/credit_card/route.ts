@@ -30,7 +30,7 @@ export async function GET(_: Request, { params }: ApiProps) {
                 }
             }
 
-            if (inscrito.pagamento.status != 'pending') {
+            if (!['pending', 'expired'].includes(inscrito.pagamento.status)) {
                 await remove(ref(database, `eventosPagamentos/${inscrito.pagamento.txid}`))
                 await efipay.cancelCharge({ id: inscrito.pagamento.locationId })
             }
