@@ -20,11 +20,7 @@ export async function GET(_: Request, { params }: ApiProps) {
 
     let credenciamento: Credenciamento = comprovanteSnapshot.val()
     
-    const comprovanteRef = refStorage(storage, credenciamento.comprovante);
-    let comprovante = await getDownloadURL(comprovanteRef)
-
     return Response.json({ credenciamento: {
-        comprovante,
         servo: credenciamento.servo,
         credenciadoEm: credenciamento.credenciadoEm,
     } })
@@ -32,20 +28,16 @@ export async function GET(_: Request, { params }: ApiProps) {
 
 export async function PATCH(request: Request, { params }: ApiProps) {
     try {
-        const {comprovante, servo}: {comprovante: string, servo: string} = await request.json();
+        const {servo}: {servo: string} = await request.json();
     
-        if (!comprovante || !servo) {
-            return Response.json({ error: "Os campos servo e comprovante são obrigatórios" }, { status: 400 })
+        if (!servo) {
+            return Response.json({ error: "Os campos servo são obrigatórios" }, { status: 400 })
         }
     
-        const comprovanteRef = refStorage(storage, `site/eventos/${params.eventoId}/credenciamento/${params.inscritoId}`);
-        let comprovanteFile = await uploadString(comprovanteRef, comprovante, 'data_url')
-
         const refCredenciamento = refDatabase(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/credenciamento`)
         await setDatabase(refCredenciamento, {
             servo,
-            comprovante: comprovanteFile.metadata.fullPath,
-            credenciadoEm: new Date(comprovanteFile.metadata.timeCreated).toString()
+            credenciadoEm: new Date().toString()
         });
     
         return Response.json({ message: "Credenciamento realizado com sucesso" })

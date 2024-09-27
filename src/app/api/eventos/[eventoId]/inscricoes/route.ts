@@ -14,13 +14,6 @@ export async function GET(_: Request, { params }: ApiProps) {
     const snapshotInscricoes = await get(refInscricoes)
 
     const inscricoes = Object.values(snapshotInscricoes.val()) as InscritoType[]
-    for (let inscrito of inscricoes) {
-        if (inscrito.credenciamento) {
-            let comprovanteRef = refStorage(storage, inscrito.credenciamento.comprovante)
-            let comprovante  = await getDownloadURL(comprovanteRef)
-            inscrito.credenciamento.comprovante = comprovante
-        }
-    }
 
     return Response.json({ inscricoes })
 }
