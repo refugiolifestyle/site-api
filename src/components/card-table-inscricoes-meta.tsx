@@ -16,10 +16,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
-import { ChartNoAxesCombined, Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSign, Loader2, Search, User, Users } from "lucide-react"
+import { ChartNoAxesCombined, Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, Loader2, Search, User, Users } from "lucide-react"
 import { parseAsInteger, useQueryState } from "nuqs"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { Badge } from "./ui/badge"
+import { toast } from "sonner"
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -339,6 +340,23 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               </Command>
             </PopoverContent>
           </Popover>
+          <Button
+              variant="outline"
+              size="sm"
+              className="gap-1 text-sm"
+              onClick={async () => {
+                let inscricoesText = celulasFiltradas
+                  .map(v => ([v.rede, v.celula, v.lider, v.inscricoes]))
+                await navigator.clipboard.writeText([
+                  "Rede\tCélula\Lider\Inscrições",
+                  ...inscricoesText
+                ].join('\n'))
+                toast.success("Copiado com sucesso")
+              }}
+            >
+              <Copy className="h-3.5 w-3.5" />
+              <span className="sr-only xl:not-sr-only">Copiar dados</span>
+            </Button>
         </div>
         <Table>
           <TableHeader>
