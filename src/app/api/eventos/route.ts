@@ -3,9 +3,10 @@ import { EventoType } from "@/types";
 import { get as getDatabase, ref as refDatabase } from "firebase/database";
 import { getDownloadURL, ref as refStorage } from "firebase/storage";
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
-
-export async function GET() {
+export async function GET(_: Request) {
     const refEventos = refDatabase(database, `eventos`)
     const snapshotEventos = await getDatabase(refEventos)
 
