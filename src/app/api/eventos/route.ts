@@ -3,6 +3,8 @@ import { EventoType } from "@/types";
 import { get as getDatabase, ref as refDatabase } from "firebase/database";
 import { getDownloadURL, ref as refStorage } from "firebase/storage";
 
+
+
 export async function GET() {
     const refEventos = refDatabase(database, `eventos`)
     const snapshotEventos = await getDatabase(refEventos)
@@ -10,7 +12,8 @@ export async function GET() {
     const eventos: EventoType[] = [];
     const values = Object.values<EventoType>(snapshotEventos.val());
 
-    for (const { inscricoes, ...evento } of values) {
+    for (let value of values) {
+        let { inscricoes, ...evento } = value
         if (!evento.ativo) {
             continue;
         }
