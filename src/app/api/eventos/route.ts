@@ -25,9 +25,9 @@ export async function GET(_: Request) {
 
         eventos.push({
             ...evento,
-            chamada: await getDownloadURL(chamada),
-            fundo: await getDownloadURL(fundo),
-            logo: await getDownloadURL(logo),
+            chamada: chamada.exists() ? await getDownloadURL(chamada) : null,
+            fundo: fundo.exists() ? await getDownloadURL(fundo) : null,
+            logo: logo.exists() ? await getDownloadURL(logo) : null,
         });
     }
 
