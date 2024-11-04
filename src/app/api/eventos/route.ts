@@ -28,6 +28,8 @@ export async function GET(_: Request) {
         await getDownloadURL(fundo).then(url => evento.fundo = url).catch(() => null)
         await getDownloadURL(flyer).then(url => evento.flyer = url).catch(() => null)
         await getDownloadURL(logo).then(url => evento.logo = url).catch(() => null)
+
+        eventos.push(evento)
     }
 
     return Response.json({ eventos })
