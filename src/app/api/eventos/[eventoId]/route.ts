@@ -15,14 +15,24 @@ export async function GET(_: Request, { params }: ApiProps) {
 
     const evento: EventoType = snapshotEventos.val()
     delete evento.inscricoes
-    
+
     const chamada = refStorage(storage, `site/eventos/${params.eventoId}/chamada.mp4`);
     const fundo = refStorage(storage, `site/eventos/${params.eventoId}/fundo.jpg`);
+    const flyer = refStorage(storage, `site/eventos/${params.eventoId}/flyer.jpeg`);
     const logo = refStorage(storage, `site/eventos/${params.eventoId}/logo.png`);
 
-    await getDownloadURL(chamada).then(chamadaUrl => evento.chamada = chamadaUrl)
-    await getDownloadURL(fundo).then(fundoUrl => evento.fundo = fundoUrl)
-    await getDownloadURL(logo).then(logoUrl => evento.logo = logoUrl)    
+    await Promise.all([
+        getDownloadURL(chamada),
+        getDownloadURL(fundo),
+        getDownloadURL(flyer),
+        getDownloadURL(logo)
+    ])
+        .then(([chamadaUrl, fundoUrl, flyerUrl, logoUrl]) => {
+            if (chamadaUrl) { evento.chamada = chamadaUrl }
+            if (fundoUrl) { evento.fundo = fundoUrl }
+            if (flyerUrl) { evento.flyer = flyerUrl }
+            if (logoUrl) { evento.logo = logoUrl }
+        })
 
     return Response.json({ evento })
 }

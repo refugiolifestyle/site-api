@@ -25,6 +25,7 @@ export type EventoType = {
   logo: string
   chamada: string | null
   fundo: string
+  flyer: string
   valor: number
   meta?: number
   metaBatida?: Object
