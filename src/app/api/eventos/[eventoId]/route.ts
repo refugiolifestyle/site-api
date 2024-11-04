@@ -21,18 +21,10 @@ export async function GET(_: Request, { params }: ApiProps) {
     const flyer = refStorage(storage, `site/eventos/${params.eventoId}/flyer.jpeg`);
     const logo = refStorage(storage, `site/eventos/${params.eventoId}/logo.png`);
 
-    await Promise.all([
-        getDownloadURL(chamada),
-        getDownloadURL(fundo),
-        getDownloadURL(flyer),
-        getDownloadURL(logo)
-    ])
-        .then(([chamadaUrl, fundoUrl, flyerUrl, logoUrl]) => {
-            if (chamadaUrl) { evento.chamada = chamadaUrl }
-            if (fundoUrl) { evento.fundo = fundoUrl }
-            if (flyerUrl) { evento.flyer = flyerUrl }
-            if (logoUrl) { evento.logo = logoUrl }
-        })
+    await getDownloadURL(chamada).then(url => evento.chamada = url).catch(() => null)
+    await getDownloadURL(fundo).then(url => evento.fundo = url).catch(() => null)
+    await getDownloadURL(flyer).then(url => evento.flyer = url).catch(() => null)
+    await getDownloadURL(logo).then(url => evento.logo = url).catch(() => null)
 
     return Response.json({ evento })
 }
