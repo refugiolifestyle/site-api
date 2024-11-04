@@ -13,18 +13,16 @@ export async function GET(_: Request, { params }: ApiProps) {
     const refEventos = refDatabase(database, `eventos/${params.eventoId}`)
     const snapshotEventos = await getDatabase(refEventos)
 
+    const evento: EventoType = snapshotEventos.val()
+    delete evento.inscricoes
+    
     const chamada = refStorage(storage, `site/eventos/${params.eventoId}/chamada.mp4`);
     const fundo = refStorage(storage, `site/eventos/${params.eventoId}/fundo.jpg`);
     const logo = refStorage(storage, `site/eventos/${params.eventoId}/logo.png`);
 
-    const evento: EventoType = {
-        ...snapshotEventos.val(),
-        chamada: await getDownloadURL(chamada),
-        fundo: await getDownloadURL(fundo),
-        logo: await getDownloadURL(logo),
-    }
-
-    delete evento.inscricoes
+    await getDownloadURL(chamada).then(chamadaUrl => evento.chamada = chamadaUrl)
+    await getDownloadURL(fundo).then(fundoUrl => evento.fundo = fundoUrl)
+    await getDownloadURL(logo).then(logoUrl => evento.logo = logoUrl)    
 
     return Response.json({ evento })
 }

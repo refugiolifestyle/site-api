@@ -1,7 +1,7 @@
 import { database, storage } from "@/firebase";
 import { EventoType } from "@/types";
 import { get as getDatabase, ref as refDatabase } from "firebase/database";
-import { getDownloadURL, ref as refStorage,  } from "firebase/storage";
+import { getDownloadURL, ref as refStorage, } from "firebase/storage";
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -23,12 +23,9 @@ export async function GET(_: Request) {
         const fundo = refStorage(storage, `site/eventos/${evento.id}/fundo.jpg`);
         const logo = refStorage(storage, `site/eventos/${evento.id}/logo.png`);
 
-        eventos.push({
-            ...evento,
-            chamada: await getDownloadURL(chamada) || null,
-            fundo: await getDownloadURL(fundo),
-            logo: await getDownloadURL(logo),
-        });
+        await getDownloadURL(chamada).then(chamadaUrl => evento.chamada = chamadaUrl)
+        await getDownloadURL(fundo).then(fundoUrl => evento.fundo = fundoUrl)
+        await getDownloadURL(logo).then(logoUrl => evento.logo = logoUrl)        
     }
 
     return Response.json({ eventos })
