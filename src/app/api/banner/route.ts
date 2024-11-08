@@ -6,7 +6,11 @@ export async function GET() {
     const refbanners = ref(database, "banner")
     const snapshotbanners = await get(refbanners)
 
-    const banner = snapshotbanners.val() as BannerType
+    let banner = snapshotbanners.val()
+
+    if (!banner.ativo) {
+        banner = null
+    }
 
     return Response.json({ banner })
 }
