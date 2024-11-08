@@ -3,10 +3,10 @@ import { BannerType, CelulaType } from "@/types";
 import { get, ref } from "firebase/database";
 
 export async function GET() {
-    const refbanners = ref(database, "banners")
+    const refbanners = ref(database, "banner")
     const snapshotbanners = await get(refbanners)
 
-    const banners = snapshotbanners.val() as BannerType[]
+    const banner = snapshotbanners.val() as BannerType
 
-    return Response.json({ banners })
+    return Response.json({ banner })
 }
