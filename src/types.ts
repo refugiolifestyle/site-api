@@ -9,7 +9,7 @@ export type CelulaType = {
 
 export type BannerType = {
   ativo: boolean
-  banner: string
+  imagem: string
   link: string
 }
 
