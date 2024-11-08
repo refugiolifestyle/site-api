@@ -1,4 +1,4 @@
-import { storage } from "@/firebase";
+import { storage } from "@/configs/firebase";
 import { listAll, getDownloadURL, ref } from "firebase/storage";
 
 export const dynamic = 'force-static'

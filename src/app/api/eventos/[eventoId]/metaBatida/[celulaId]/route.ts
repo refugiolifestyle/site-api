@@ -1,5 +1,5 @@
-import { database } from "@/firebase"
-import { push, ref, set } from "firebase/database"
+import { database } from "@/configs/firebase"
+import { ref, set } from "firebase/database"
 
 type ApiProps = {
     params: {

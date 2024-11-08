@@ -1,7 +1,6 @@
-import { database, storage } from "@/firebase";
+import { database } from "@/configs/firebase";
 import { InscritoType } from "@/types";
 import { equalTo, get, orderByChild, query, ref, set } from "firebase/database";
-import { getDownloadURL, ref as refStorage } from "firebase/storage";
 
 type ApiProps = {
     params: {
@@ -40,6 +39,9 @@ export async function POST(request: Request, { params }: ApiProps) {
 
     const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${inscrito.cpf}`)
     await set(refInscrito, inscrito)
+    
+    const refMembros = ref(database, `membros/${inscrito.cpf}`)
+    await set(refMembros, inscrito)
 
     return Response.json({ message: "Inscrito cadastrado com sucesso" }, { status: 201 });
 }

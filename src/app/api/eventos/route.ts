@@ -1,4 +1,4 @@
-import { database, storage } from "@/firebase";
+import { database, storage } from "@/configs/firebase";
 import { EventoType } from "@/types";
 import { get as getDatabase, ref as refDatabase } from "firebase/database";
 import { getDownloadURL, ref as refStorage, } from "firebase/storage";
