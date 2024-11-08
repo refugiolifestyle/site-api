@@ -7,6 +7,12 @@ export type CelulaType = {
   lider: string
 }
 
+export type BannerType = {
+  ativo: boolean
+  banner: string
+  link: string
+}
+
 export type InscritoType = {
   cpf: string
   nome?: string
