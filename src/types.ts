@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react"
+
 export type CelulaType = {
   id: number
   rede: number
@@ -6,54 +8,85 @@ export type CelulaType = {
 }
 
 export type InscritoType = {
-  id?: string
-  idPagarme?: string
   cpf: string
   nome?: string
   telefone?: string
   rede?: string
   celula?: string
   email?: string
+  finalizada?: boolean
+  inscritoEm?: string
+  pagamentos?: Pagamento[]
+  pagamentosAFazer?: EventoPagamentosType[]
+  novo?: boolean
+  termos?: boolean
   pagamento?: Pagamento
   credenciamento?: Credenciamento
 }
 
+export const Steps = {
+  "VALIDACAO": 1,
+  "FORMULARIO": 2,
+  "TERMOS": 3,
+  "PARCELAS": 4,
+  "PAGAMENTO": 5,
+  "FINALIZACAO": 6
+}
+
+export type Pagamento = {
+  parcelas: EventoPagamentosType[]
+  tipo?: string
+  txid?: string
+  codigo?: string
+  valor?: string
+  status?: string
+  criadoEm?: string
+  pagoEm?: string
+  expiraEm?: string
+  canceladoEm?: string
+  url?: string
+  pixID?: string
+  notificationId?: string
+}
+
+export type EventoPagamentosType = {
+  parcela: number
+  nome: string
+  valores: {[key: string]: number}
+}
+
 export type EventoType = {
   id: string
-  titulo: string
+    subtitulo: string
+    titulo: string
+  pagamentos: EventoPagamentosType[]
+  inscricoesAbertas: boolean
+  limitePagamentos: string
+  meta?: number
+  metaBatida?: Object
+  inscricoes?: InscritoType[]
   ativo: boolean
   logo: string
   chamada: string | null
   fundo: string
   flyer: string
   valor: number
-  meta?: number
-  metaBatida?: Object
   kits?: string[]
-  limitePagamentos?: string
-  tiposPagamentos?: string
-  inscricoesAbertas?: boolean
-  inscricoes?: InscritoType[]
+  tiposPagamentos: string
   credenciamentoAberto?: boolean
   credenciamentos?: Credenciamento[]
+  termos: EventoTermoType[]
+}
+
+export type EventoTermoType = {
+  termo: number
+  descricao: string
+  assinado?: boolean
 }
 
 export type Credenciamento = {
   credenciadoEm: string
-  comprovante: string
   servo: string
-}
-
-export interface Pagamento {
-  txid: string
-  codigo: string
-  valor: string
-  status: string
-  criadoEm: string
-  pagoEm?: string
-  expiraEm?: string
-  locationId?: number
-  url: string
 }
 
 export type Charge = {
@@ -130,3 +163,12 @@ export type PixReturn = {
   valor: string
   horario: string
 }
+
+export type UseStepActions = {
+  goToNextStep: () => void;
+  goToPrevStep: () => void;
+  reset: () => void;
+  canGoToNextStep: boolean;
+  canGoToPrevStep: boolean;
+  setStep: Dispatch<SetStateAction<number>>;
+};

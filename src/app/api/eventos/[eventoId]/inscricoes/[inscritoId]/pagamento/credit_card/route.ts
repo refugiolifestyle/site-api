@@ -2,10 +2,11 @@
 import EfiPay from 'sdk-node-apis-efi'
 import efi from "@/configs/efi"
 
-import { database } from "@/firebase"
-import { Charge, EventoType, InscritoType } from "@/types"
-import { get, ref, remove, set } from "firebase/database"
+import { database } from "@/configs/firebase"
+import { Charge, EventoPagamentosType, EventoType, InscritoType } from "@/types"
+import { get, push, ref, remove, set } from "firebase/database"
 import { v4 } from "uuid"
+import { cancelarTransacoesEmAberto } from '@/lib/cancelar-transacoes'
 
 type ApiProps = {
     params: {
@@ -14,41 +15,36 @@ type ApiProps = {
     }
 }
 
-export async function GET(_: Request, { params }: ApiProps) {
+export async function POST(request: Request, { params }: ApiProps) {
     try {
-        const efipay = new EfiPay(efi)
+        const pagamentos: EventoPagamentosType[] = await request.json();
+
+        if (!pagamentos) {
+            throw "O campo parcelas é obrigatório"
+        }
 
         const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}`)
         const snapshotInscrito = await get(refInscrito);
         const inscrito = snapshotInscrito.val() as InscritoType
-
-        if (inscrito.pagamento && !['unpaid', 'ATIVA'].includes(inscrito.pagamento.status)) {
-            if (inscrito.pagamento.expiraEm) {
-                let expiraEmDate = new Date(inscrito.pagamento.expiraEm)
-                if (Date.now() < expiraEmDate.getTime()) {
-                    return Response.json({ checkout: inscrito.pagamento.url })
-                }
-            }
-
-            if (!['pending', 'expired'].includes(inscrito.pagamento.status)) {
-                await remove(ref(database, `eventosPagamentos/${inscrito.pagamento.txid}`))
-                await efipay.cancelCharge({ id: inscrito.pagamento.locationId })
-            }
-        }
         
         const refEvento = ref(database, `eventos/${params.eventoId}`)
         const snapshotEvento = await get(refEvento);
         const evento = snapshotEvento.val() as EventoType
 
+        await cancelarTransacoesEmAberto(evento, inscrito)
+
+        const efipay = new EfiPay(efi)
+
         const txid = v4()
+        const valor = pagamentos.reduce((a, p) => a + p.valores['credit_card'], 0)
 
         let { data: charge } = await efipay
             .createOneStepLink({}, {
-                items: [{
-                    name: evento.titulo,
-                    value: parseInt(`${evento.valor}00`),
+                items: pagamentos.map(pagamento => ({
+                    name: pagamento.nome,
+                    value: parseInt(`${pagamento.valores['credit_card']}00`),
                     amount: 1,
-                }],
+                })),
                 metadata: {
                     custom_id: txid,
                     notification_url: `${process.env.DOMAIN_URL}/api/webhooks/pagamentos/credit_card/${txid}`
@@ -59,25 +55,28 @@ export async function GET(_: Request, { params }: ApiProps) {
                 settings: {
                     expire_at: evento.limitePagamentos,
                     request_delivery_address: false,
-                    payment_method: 'credit_card'
+                    payment_method: 'credit_card',
+                    message: evento.titulo
                 }
             }) as { code: number, data: Charge }
 
-        const refPagamento = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/pagamento`)
+        const refPagamento = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/pagamentos/${charge.custom_id}`)
         await set(refPagamento, {
-            locationId: charge.charge_id,
+            valor,
+            codigo: charge.charge_id,
             status: charge.status,
             txid: charge.custom_id,
-            valor: evento.valor,
             url: charge.payment_url,
             criadoEm: charge.created_at,
-            expiraEm: charge.expire_at
+            expiraEm: charge.expire_at,
+            tipo: "credit_card",
+            parcelas: pagamentos
         })
 
         const refEventosPagamento = ref(database, `eventosPagamentos/${charge.custom_id}`)
-        await set(refEventosPagamento, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/pagamento`)
+        await set(refEventosPagamento, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/pagamentos/${charge.custom_id}`)
 
-        return Response.json({ checkout: charge.payment_url })
+        return Response.json({ checkout: charge.payment_url, txid: charge.custom_id })
     }
     catch (e) {
         console.error(e)

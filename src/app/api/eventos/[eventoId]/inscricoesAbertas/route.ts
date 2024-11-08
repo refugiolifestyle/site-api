@@ -1,7 +1,5 @@
-import { database, storage } from "@/firebase";
-import { EventoType } from "@/types";
+import { database } from "@/configs/firebase";
 import { get as getDatabase, ref as refDatabase } from "firebase/database";
-import { getDownloadURL, ref as refStorage } from "firebase/storage";
 
 type ApiProps = {
     params: {

@@ -1,7 +1,6 @@
-import { database, storage } from "@/firebase"
-import { Credenciamento, InscritoType } from "@/types"
+import { database } from "@/configs/firebase"
+import { Credenciamento } from "@/types"
 import { get, ref as refDatabase, set as setDatabase } from "firebase/database"
-import { getDownloadURL, ref as refStorage, uploadString } from "firebase/storage"
 
 type ApiProps = {
     params: {
@@ -19,30 +18,27 @@ export async function GET(_: Request, { params }: ApiProps) {
     }
 
     let credenciamento: Credenciamento = comprovanteSnapshot.val()
-    
-    return Response.json({ credenciamento: {
-        servo: credenciamento.servo,
-        credenciadoEm: credenciamento.credenciadoEm,
-    } })
+
+    return Response.json({ credenciamento })
 }
 
 export async function PATCH(request: Request, { params }: ApiProps) {
     try {
-        const {servo}: {servo: string} = await request.json();
-    
+        const { servo }: { servo: string } = await request.json();
+
         if (!servo) {
-            return Response.json({ error: "Os campos servo são obrigatórios" }, { status: 400 })
+            return Response.json({ error: "O campo servo é obrigatório" }, { status: 400 })
         }
-    
+
         const refCredenciamento = refDatabase(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/credenciamento`)
         await setDatabase(refCredenciamento, {
             servo,
             credenciadoEm: new Date().toString()
         });
-    
+
         return Response.json({ message: "Credenciamento realizado com sucesso" })
-    } 
-    catch(e) {
+    }
+    catch (e) {
         console.error(e)
         return Response.json({ error: "Falha ao realizar o credenciamento" }, { status: 500 })
     }

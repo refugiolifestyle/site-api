@@ -1,4 +1,4 @@
-import { database } from "@/firebase";
+import { database } from "@/configs/firebase";
 import { get, ref } from "firebase/database";
 
 type ApiProps = {
@@ -14,7 +14,7 @@ export async function GET(_: Request, { params }: ApiProps) {
     let data = snapshotInscrito.val()
 
     if (!snapshotInscrito.exists()) {
-        const refInscritoAnteriomente = ref(database, `inscricoes/${params.inscritoId}`)
+        const refInscritoAnteriomente = ref(database, `membros/${params.inscritoId}`)
         const snapshotInscritoAnteriomente = await get(refInscritoAnteriomente)
 
         if (!snapshotInscritoAnteriomente.exists()) {
@@ -26,14 +26,14 @@ export async function GET(_: Request, { params }: ApiProps) {
             })
         }
 
-        const { eventos, cpf, telefone, rede, celula, naoTenhoCelula, ...inscrito } = snapshotInscritoAnteriomente.val()
+        const {visitante, rede, celula, telefone, cpf, ...membro} = snapshotInscritoAnteriomente.val()
         data = {
-            ...inscrito,
+            ...membro,
+            visitante,
             cpf: cpf.replaceAll(/[^\d]+/g, ''),
             telefone: telefone.replaceAll(/[^\d]+/g, ''),
-            rede: naoTenhoCelula ? "" : rede,
-            celula: naoTenhoCelula ? "" : celula,
-            visitante: naoTenhoCelula,
+            rede: visitante ? "" : rede,
+            celula: visitante ? "" : celula,
             novo: true
         }
 
