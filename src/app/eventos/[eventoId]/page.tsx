@@ -24,6 +24,6 @@ export default async function EventoPage({ params }: Props) {
 
   return <div className="grid gap-6">
     <CardTableInscricoes celulas={celulas} evento={evento} inscricoes={inscricoes} />
-    <CardTableInscricoesMeta celulas={celulas} evento={evento} inscricoes={inscricoes.filter(i => ["CONCLUIDA", "paid"].includes(i.pagamento?.status!))} />
+    {/* <CardTableInscricoesMeta celulas={celulas} evento={evento} inscricoes={inscricoes.filter(i => ["CONCLUIDA", "paid"].includes(i.pagamento?.status!))} /> */}
   </div>
 }

@@ -1,6 +1,7 @@
 import { database } from "@/configs/firebase"
-import { Credenciamento } from "@/types"
-import { get, ref as refDatabase, set as setDatabase } from "firebase/database"
+import { getPagamentoInscrito } from "@/lib/utils"
+import { Credenciamento, InscritoType } from "@/types"
+import { get, ref, set } from "firebase/database"
 
 type ApiProps = {
     params: {
@@ -10,7 +11,7 @@ type ApiProps = {
 }
 
 export async function GET(_: Request, { params }: ApiProps) {
-    const refCredenciamento = refDatabase(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/credenciamento`)
+    const refCredenciamento = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/credenciamento`)
     let comprovanteSnapshot = await get(refCredenciamento)
 
     if (!comprovanteSnapshot.exists()) {
@@ -30,8 +31,21 @@ export async function PATCH(request: Request, { params }: ApiProps) {
             return Response.json({ error: "O campo servo é obrigatório" }, { status: 400 })
         }
 
-        const refCredenciamento = refDatabase(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/credenciamento`)
-        await setDatabase(refCredenciamento, {
+        const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}`)
+        const snapshotInscrito = await get(refInscrito);
+        const inscrito = snapshotInscrito.val() as InscritoType
+        const pagamento = getPagamentoInscrito(inscrito)
+        if (pagamento?.tipo === "money") {
+            const refPagamento = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/pagamentos/${pagamento.txid}`)
+            await set(refPagamento, {
+                ...pagamento,
+                status: "CONCLUIDA",
+                pagoEm: new Date().toString(),
+            })
+        }
+
+        const refCredenciamento = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}/credenciamento`)
+        await set(refCredenciamento, {
             servo,
             credenciadoEm: new Date().toString()
         });

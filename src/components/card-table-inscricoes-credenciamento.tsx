@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { cn, getPagamentoInscrito } from "@/lib/utils";
 import { CelulaType, EventoType, InscritoType } from "@/types";
 import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSign, Loader2, Plus, Search, Trash, User, Users, X } from "lucide-react";
 import { parseAsInteger, useQueryState } from 'nuqs';
@@ -34,59 +34,78 @@ type Props = {
     evento: EventoType
 }
 
+const onBadgeDoubleClick = async (inscrito: InscritoType) => {
+    let pagamento = getPagamentoInscrito(inscrito)
+    if (pagamento?.tipo != "money") {
+        await navigator.clipboard.writeText(pagamento?.url!)
+        toast.success("Copiado com sucesso")
+    }
+}
+
 const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, evento: EventoType }) => {
-    if (!inscrito.pagamento) {
+    if (inscrito.credenciamento) {
+        return <Badge className="text-xs text-center bg-blue-300" variant="outline">
+            Credenciado
+        </Badge>
+    }
+
+    if (!inscrito.pagamentos) {
         return <Badge className="text-xs text-center" variant="outline">
             Cadastrado
         </Badge>
     }
 
-    if (inscrito.credenciamento) {
-        return <Badge className="text-xs text-center bg-blue-300" variant="outline">
-            Credenciado{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
+    let pagamento = getPagamentoInscrito(inscrito)
+    if (["paid", "CONCLUIDA"].includes(pagamento?.status!)) {
+        return <Badge onDoubleClick={() => onBadgeDoubleClick(inscrito)} className="text-xs text-center text-white bg-green-700" variant="outline">
+            Pago
         </Badge>
     }
 
-    switch (inscrito.pagamento.status) {
-        case 'paid':
-        case 'CONCLUIDA': return <Badge onDoubleClick={async () => {
-            await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-            toast.success("Copiado com sucesso")
-        }} className="text-xs text-center text-white bg-green-700" variant="outline">
-            Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
-        </Badge>
-        case 'unpaid':
-        case 'canceled': return <Badge onDoubleClick={async () => {
-            await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-            toast.success("Copiado com sucesso")
-        }} className="text-xs text-center text-white bg-red-700" variant="outline">
-            Não pago
-        </Badge>
-        default: return <Badge onDoubleClick={async () => {
-            await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-            toast.success("Copiado com sucesso")
-        }} className="text-xs text-center text-white bg-orange-500" variant="outline">
+    if (["ATIVA", "link"].includes(pagamento?.status!)) {
+        return <Badge onDoubleClick={() => onBadgeDoubleClick(inscrito)} className="text-xs text-center text-white bg-orange-500" variant="outline">
             Aguardando
         </Badge>
     }
+
+    return <Badge onDoubleClick={() => onBadgeDoubleClick(inscrito)} className="text-xs text-center text-white bg-red-700" variant="outline">
+        Não pago
+    </Badge>
 }
 
 const getStatusPagamento = (inscrito: InscritoType) => {
-    if (!inscrito.pagamento) {
-        return "Cadastrado"
-    }
-
     if (inscrito.credenciamento) {
         return "Credenciado"
     }
 
-    switch (inscrito.pagamento.status) {
-        case 'paid':
-        case 'CONCLUIDA': return "Pago"
-        case 'unpaid':
-        case 'canceled': return "Não pago"
-        default: return "Aguardando"
+    if (!inscrito.pagamentos) {
+        return "Cadastrado"
     }
+
+    let pagamento = getPagamentoInscrito(inscrito)
+    if (["paid", "CONCLUIDA"].includes(pagamento?.status!)) {
+        return "Pago"
+    }
+
+    if (["ATIVA", "link"].includes(pagamento?.status!)) {
+        return "Aguardando"
+    }
+
+    return "Não pago"
+}
+
+const getTipoPagamento = (inscrito: InscritoType) => {
+    let tipoPagamento = getPagamentoInscrito(inscrito)?.tipo;
+
+    return !tipoPagamento
+        ? '-'
+        : tipoPagamento === "credit_card"
+            ? "Cartão de crédito"
+            : tipoPagamento === "pix"
+                ? "Pix"
+                : tipoPagamento === "money"
+                    ? "Dinheiro"
+                    : "Presencial"
 }
 
 export default function CardTableCredenciamento({ celulas, evento }: Props) {
@@ -138,7 +157,8 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
             f.nome?.normalize('NFD').replace(/[\u0300-\u036f]/g, ""),
             f.cpf,
             new Date(f.pagamento?.pagoEm!).toLocaleString('pt-BR'),
-            getStatusPagamento(f)
+            getStatusPagamento(f),
+            getTipoPagamento(f)
         ]
             .some(v => v?.toLowerCase().includes(filterGlobal.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()))
     })
@@ -228,6 +248,9 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                                                 CPF
                                             </TableHead>
                                             <TableHead>
+                                                Pagamento
+                                            </TableHead>
+                                            <TableHead>
                                                 Situação
                                             </TableHead>
                                             <TableHead className="text-right"></TableHead>
@@ -257,13 +280,18 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                                                         {inscrito.cpf.replace(/\d{3}(\d{3})(\d{2})\d{3}/, '***.$1.$2*-**')}
                                                     </TableCell>
                                                     <TableCell>
+                                                        {
+                                                            getTipoPagamento(inscrito)
+                                                        }
+                                                    </TableCell>
+                                                    <TableCell>
                                                         <TableStatusPagamento evento={evento} inscrito={inscrito} />
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         {
                                                             inscrito.credenciamento
                                                                 ? <DialogTableCredenciamento evento={evento} inscrito={inscrito} />
-                                                                : getStatusPagamento(inscrito) === "Pago"
+                                                                : getStatusPagamento(inscrito) === "Pago" || (["Dinheiro", "Presencial"].includes(getTipoPagamento(inscrito)) && getStatusPagamento(inscrito) === "Aguardando")
                                                                     ? <DialogTableCredenciamentoCamera evento={evento} inscrito={inscrito} servo={servo} />
                                                                     : null
                                                         }

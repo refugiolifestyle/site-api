@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction } from "react"
 
 export type CelulaType = {
   id: number
-  rede: number
+  rede: string
   celula: string
   lider: string
 }

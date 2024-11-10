@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
+import { cn, getPagamentoInscrito } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
 import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, User, Users } from "lucide-react"
 import { parseAsInteger, useQueryState } from "nuqs"
@@ -32,71 +32,93 @@ type Props = {
   inscricoes: InscritoType[]
 }
 
+const onBadgeDoubleClick = async (inscrito: InscritoType) => {
+  let pagamento = getPagamentoInscrito(inscrito)
+  if (pagamento?.tipo != "money") {
+    await navigator.clipboard.writeText(pagamento?.url!)
+    toast.success("Copiado com sucesso")
+  }
+}
+
 const TableStatusPagamento = ({ inscrito, evento }: { inscrito: InscritoType, evento: EventoType }) => {
-  if (!inscrito.pagamento) {
+  if (inscrito.credenciamento) {
+    return <Badge className="text-xs text-center bg-blue-300" variant="outline">
+      Credenciado
+    </Badge>
+  }
+
+  if (!inscrito.pagamentos) {
     return <Badge className="text-xs text-center" variant="outline">
       Cadastrado
     </Badge>
   }
 
-  if (inscrito.credenciamento) {
-    return <Badge className="text-xs text-center bg-blue-300" variant="outline">
-      Credenciado{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
+  let pagamento = getPagamentoInscrito(inscrito)
+  if (["paid", "CONCLUIDA"].includes(pagamento?.status!)) {
+    return <Badge onDoubleClick={() => onBadgeDoubleClick(inscrito)} className="text-xs text-center text-white bg-green-700" variant="outline">
+      Pago
     </Badge>
   }
 
-  switch (inscrito.pagamento.status) {
-    case 'paid':
-    case 'CONCLUIDA': return <Badge onDoubleClick={async () => {
-      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-      toast.success("Copiado com sucesso")
-    }} className="text-xs text-center text-white bg-green-700" variant="outline">
-      Pago{evento.kits && evento.kits?.includes(inscrito.cpf) ? " - 100 Primeiros" : ""}
-    </Badge>
-    case 'unpaid':
-    case 'canceled': return <Badge onDoubleClick={async () => {
-      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-      toast.success("Copiado com sucesso")
-    }} className="text-xs text-center text-white bg-red-700" variant="outline">
-      Não pago
-    </Badge>
-    default: return <Badge onDoubleClick={async () => {
-      await navigator.clipboard.writeText(inscrito.pagamento?.url!)
-      toast.success("Copiado com sucesso")
-    }} className="text-xs text-center text-white bg-orange-500" variant="outline">
+  if (["ATIVA", "link"].includes(pagamento?.status!)) {
+    return <Badge onDoubleClick={() => onBadgeDoubleClick(inscrito)} className="text-xs text-center text-white bg-orange-500" variant="outline">
       Aguardando
     </Badge>
   }
+
+  return <Badge onDoubleClick={() => onBadgeDoubleClick(inscrito)} className="text-xs text-center text-white bg-red-700" variant="outline">
+    Não pago
+  </Badge>
 }
 
 const getStatusPagamento = (inscrito: InscritoType) => {
-  if (!inscrito.pagamento) {
-    return "Cadastrado"
-  }
-
   if (inscrito.credenciamento) {
     return "Credenciado"
   }
 
-  switch (inscrito.pagamento.status) {
-    case 'paid':
-    case 'CONCLUIDA': return "Pago"
-    case 'unpaid':
-    case 'canceled': return "Não pago"
-    default: return "Aguardando"
+  if (!inscrito.pagamentos) {
+    return "Cadastrado"
   }
+
+  let pagamento = getPagamentoInscrito(inscrito)
+  if (["paid", "CONCLUIDA"].includes(pagamento?.status!)) {
+    return "Pago"
+  }
+
+  if (["ATIVA", "link"].includes(pagamento?.status!)) {
+    return "Aguardando"
+  }
+
+  return "Não pago"
 }
+
+const getTipoPagamento = (inscrito: InscritoType) => {
+  let tipoPagamento = getPagamentoInscrito(inscrito)?.tipo;
+
+  return !tipoPagamento
+    ? '-'
+    : tipoPagamento === "credit_card"
+      ? "Cartão de crédito"
+      : tipoPagamento === "pix"
+        ? "Pix"
+        : tipoPagamento === "money"
+          ? "Dinheiro"
+          : "Presencial"
+}
+
 export default function CardTableInscricoes({ celulas, evento, inscricoes }: Props) {
   const [page, setPage] = useQueryState("fip", parseAsInteger.withDefault(1))
   const [filterGlobal, setFilterGlobal] = useQueryState("fif")
   const [rede, setRede] = useQueryState("fir")
   const [celula, setCelula] = useQueryState("fic")
   const [situacao, setSituacao] = useQueryState("fis")
+  const [tipoPagamento, setTipoPagamento] = useQueryState("fit")
 
   let inscricoesFiltradas = inscricoes
   inscricoesFiltradas = inscricoesFiltradas.filter(f => !rede ? true : f.rede?.toLowerCase() == rede?.toLowerCase())
   inscricoesFiltradas = inscricoesFiltradas.filter(f => !celula ? true : celula == "Convidado" ? !f.celula : f.celula?.toLowerCase() == celula?.toLowerCase())
   inscricoesFiltradas = inscricoesFiltradas.filter(f => !situacao ? true : getStatusPagamento(f).toLowerCase() == situacao?.toLowerCase())
+  inscricoesFiltradas = inscricoesFiltradas.filter(f => !tipoPagamento ? true : getPagamentoInscrito(f)?.tipo?.toLowerCase() == tipoPagamento?.toLowerCase())
   inscricoesFiltradas = inscricoesFiltradas.filter(f => {
     if (!filterGlobal) {
       return true
@@ -118,7 +140,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
 
   let pagesLength = inscricoesFiltradas.length ? Math.ceil(inscricoesFiltradas.length / 10) : 0
 
-  let redes = celulas.map(c => `Rede ${c.rede}`)
+  let redes = celulas.map(c => c.rede)
     .filter((v, i, a) => a.lastIndexOf(v) === i)
     .sort((a, b) => new Intl.Collator("pt-BR", { numeric: true }).compare(a, b))
 
@@ -248,8 +270,8 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                       (
                         !rede
                           ? celulas
-                          : celulas.filter(f => `Rede ${f.rede}` === rede)
-                      ).map(s => <CommandItem className="cursor-pointer" key={`Rede ${s.celula}`} onSelect={() => {
+                          : celulas.filter(f => f.rede === rede)
+                      ).map(s => <CommandItem className="cursor-pointer" key={s.celula} onSelect={() => {
                         setCelula(s.celula)
                         setPage(1)
                       }}>
@@ -363,23 +385,96 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               </Command>
             </PopoverContent>
           </Popover>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1 text-sm"
-            onClick={async () => {
-              let inscricoesText = inscricoesFiltradas
-                .map(v => ([v.rede, v.celula, v.nome, getStatusPagamento(v)].join('\t')))
-              await navigator.clipboard.writeText([
-                "Rede\tCélula\tNome\tStatus de pagamento",
-                ...inscricoesText
-              ].join('\n'))
-              toast.success("Copiado com sucesso")
-            }}
-          >
-            <Copy className="h-3.5 w-3.5" />
-            <span className="sr-only xl:not-sr-only">Copiar dados</span>
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1 text-sm"
+              >
+                <DollarSign className="h-3.5 w-3.5" />
+                <span className="sr-only xl:not-sr-only">{
+                  !tipoPagamento
+                    ? "Todas os tipos"
+                    : tipoPagamento === "credit_card"
+                      ? "Cartão de crédito"
+                      : tipoPagamento === "pix"
+                        ? "Pix"
+                        : tipoPagamento === "money"
+                          ? "Dinheiro"
+                          : "Presencial"
+                }</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[250px] p-0">
+              <Command>
+                <CommandList>
+                  <CommandGroup>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setTipoPagamento(null)
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          tipoPagamento === "" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Todas os tipos
+                    </CommandItem>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setTipoPagamento("credit_card")
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          tipoPagamento === "credit_card" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Cartão de crédito
+                    </CommandItem>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setTipoPagamento("pix")
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          tipoPagamento === "pix" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Pix
+                    </CommandItem>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setTipoPagamento("money")
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          tipoPagamento === "money" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Dinheiro
+                    </CommandItem>
+                    <CommandItem className="cursor-pointer" onSelect={() => {
+                      setTipoPagamento("presencial")
+                      setPage(1)
+                    }}>
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          tipoPagamento === "presencial" ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      Presencial
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
         <Table>
           <TableHeader>
@@ -393,6 +488,9 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               <TableHead>Nome</TableHead>
               <TableHead className="hidden sm:table-cell">
                 CPF
+              </TableHead>
+              <TableHead>
+                Pagamento
               </TableHead>
               <TableHead>
                 Situação
@@ -424,13 +522,15 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                     {inscrito.cpf.replace(/\d{3}(\d{3})(\d{2})\d{3}/, '***.$1.$2*-**')}
                   </TableCell>
                   <TableCell>
+                    {
+                      getTipoPagamento(inscrito)
+                    }
+                  </TableCell>
+                  <TableCell>
                     <TableStatusPagamento evento={evento} inscrito={inscrito} />
                   </TableCell>
                   <TableCell className="text-right flex space-x-2">
-                    {
-                      !["CONCLUIDA", "paid"].includes(inscrito.pagamento?.status!)
-                      && <DialogTablePagamentoCamera evento={evento} inscrito={inscrito} />
-                    }
+
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -445,6 +545,10 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                         <DropdownMenuSeparator />
+                        {
+                          !["CONCLUIDA", "paid"].includes(getPagamentoInscrito(inscrito)?.status!)
+                          && <DialogTablePagamentoCamera evento={evento} inscrito={inscrito} />
+                        }
                         <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = `tel:+55${inscrito.telefone}`}>
                           Ligar
                         </DropdownMenuItem>
