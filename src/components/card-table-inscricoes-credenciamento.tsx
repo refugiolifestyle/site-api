@@ -136,6 +136,7 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
 
     const onLimparFiltro = () => {
         setFilterGlobal(null)
+        setPage(1)
         if (filterGlobalRef.current) {
             filterGlobalRef.current.value = ""
         }
@@ -143,6 +144,7 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
 
     const onFiltrar = () => {
         setFilterGlobal(filterGlobalRef.current?.value as string)
+        setPage(1)
     }
 
     let inscricoesFiltradas = data?.inscricoes || []
