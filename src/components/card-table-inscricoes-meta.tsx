@@ -16,11 +16,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
-import { ChartNoAxesCombined, Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, Loader2, Search, User, Users } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, Loader2, Search, Tag, User, Users } from "lucide-react"
 import { parseAsInteger, useQueryState } from "nuqs"
 import { SubmitHandler, useForm } from "react-hook-form"
-import { Badge } from "./ui/badge"
 import { toast } from "sonner"
+import { Badge } from "./ui/badge"
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -117,7 +117,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
 
   let pagesLength = celulasFiltradas.length ? Math.ceil(celulasFiltradas.length / 10) : 0
 
-  let redes = celulas.map(c => `Rede ${c.rede}`)
+  let redes = celulas.map(c => c.rede)
     .filter((v, i, a) => a.lastIndexOf(v) === i)
     .sort((a, b) => new Intl.Collator("pt-BR", { numeric: true }).compare(a, b))
 
@@ -134,7 +134,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center mb-2 gap-2">
+        <div className="flex flex-col lg:flex-row mb-2 gap-2">
           <div className="relative flex-1 grow-1">
             <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -148,215 +148,215 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
               }}
             />
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-sm"
-              >
-                <Users className="h-3.5 w-3.5" />
-                <span className="sr-only xl:not-sr-only">{
-                  !rede
-                    ? "Todas as redes"
-                    : rede
-                }</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandInput placeholder="Pesquisar..." />
-                <CommandList>
-                  <CommandEmpty>Nenhuma rede encontrada.</CommandEmpty>
-                  <CommandGroup>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setRede(null)
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          !rede ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Todas as Redes
-                    </CommandItem>
-                    {
-                      redes.map(r => <CommandItem className="cursor-pointer" key={r} onSelect={() => {
-                        setRede(r)
+          <div className="flex mb-2 gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="gap-1 text-sm relative"
+                >
+                  <Users className="h-3.5 w-3.5" />
+                  <span className="sr-only xl:not-sr-only">{
+                    !rede
+                      ? "Todas as redes"
+                      : rede
+                  }</span>
+                  {rede && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="Pesquisar..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhuma rede encontrada.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setRede(null)
                         setPage(1)
                       }}>
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            rede === r ? "opacity-100" : "opacity-0"
+                            !rede ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        {r}
-                      </CommandItem>)
-                    }
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-sm"
-              >
-                <User className="h-3.5 w-3.5" />
-                <span className="sr-only xl:not-sr-only">{
-                  !celula
-                    ? "Todas as celulas"
-                    : celula
-                }</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandInput placeholder="Pesquisar..." />
-                <CommandList>
-                  <CommandEmpty>Nenhuma celula encontrada.</CommandEmpty>
-                  <CommandGroup>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setCelula(null)
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          !celula ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Todas as células
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setCelula("Convidado")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          celula === "Convidado" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Convidado
-                    </CommandItem>
-                    {
-                      (
-                        !rede
-                          ? celulas
-                          : celulas.filter(f => `Rede ${f.rede}` === rede)
-                      ).map(s => <CommandItem className="cursor-pointer" key={`Rede ${s.celula}`} onSelect={() => {
-                        setCelula(s.celula)
+                        Todas as Redes
+                      </CommandItem>
+                      {
+                        redes.map(r => <CommandItem className="cursor-pointer" key={r} onSelect={() => {
+                          setRede(r)
+                          setPage(1)
+                        }}>
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              rede === r ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {r}
+                        </CommandItem>)
+                      }
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="gap-1 text-sm relative"
+                >
+                  <User className="h-3.5 w-3.5" />
+                  <span className="sr-only xl:not-sr-only">{
+                    !celula
+                      ? "Todas as celulas"
+                      : celula
+                  }</span>
+                  {celula && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="Pesquisar..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhuma celula encontrada.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setCelula(null)
                         setPage(1)
                       }}>
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            celula === s.celula ? "opacity-100" : "opacity-0"
+                            !celula ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        {s.celula}
-                      </CommandItem>)
-                    }
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-sm"
-              >
-                <ChartNoAxesCombined className="h-3.5 w-3.5" />
-                <span className="sr-only xl:not-sr-only">{
-                  !situacao
-                    ? "Todas as situações"
-                    : situacao
-                }</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandList>
-                  <CommandGroup>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao(null)
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          !situacao ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Todas as situações
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Meta confirmada")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          situacao === "Meta confirmada" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Meta confirmada
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Chegou na meta")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          situacao === "Chegou na meta" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Chegou na meta
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Não chegou na Meta")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          situacao === "Não chegou na Meta" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Não chegou na Meta
-                    </CommandItem>
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <Button
+                        Todas as células
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setCelula("Convidado")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            celula === "Convidado" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Convidado
+                      </CommandItem>
+                      {
+                        (
+                          !rede
+                            ? celulas
+                            : celulas.filter(f => `Rede ${f.rede}` === rede)
+                        ).map(s => <CommandItem className="cursor-pointer" key={`Rede ${s.celula}`} onSelect={() => {
+                          setCelula(s.celula)
+                          setPage(1)
+                        }}>
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              celula === s.celula ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {s.celula}
+                        </CommandItem>)
+                      }
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="gap-1 text-sm relative"
+                >
+                  <Tag className="h-3.5 w-3.5" />
+                  <span className="sr-only xl:not-sr-only">{
+                    !situacao
+                      ? "Todas as situações"
+                      : situacao
+                  }</span>
+                  {situacao && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandList>
+                    <CommandGroup>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao(null)
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            !situacao ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Todas as situações
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao("Meta confirmada")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            situacao === "Meta confirmada" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Meta confirmada
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao("Chegou na meta")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            situacao === "Chegou na meta" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Chegou na meta
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao("Não chegou na Meta")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            situacao === "Não chegou na Meta" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Não chegou na Meta
+                      </CommandItem>
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Button
               variant="outline"
-              size="sm"
               className="gap-1 text-sm"
               onClick={async () => {
                 let inscricoesText = celulasFiltradas
-                  .map(v => ([v.rede, v.celula, v.lider, v.inscricoes]))
+                  .map(v => ([v.rede, v.celula, v.lider, v.inscricoes].join('\t')))
                 await navigator.clipboard.writeText([
-                  "Rede\tCélula\Lider\Inscrições",
+                  "Rede\tCélula\tLider\tInscrições",
                   ...inscricoesText
                 ].join('\n'))
                 toast.success("Copiado com sucesso")
               }}
             >
               <Copy className="h-3.5 w-3.5" />
-              <span className="sr-only xl:not-sr-only">Copiar dados</span>
             </Button>
+          </div>
         </div>
         <Table>
           <TableHeader>
@@ -451,7 +451,7 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
         </Pagination>
       </CardFooter>
     </Card>
-  </div>
+  </div >
 }
 
 const ConfirmaBateuMeta = ({ celula, evento }: { celula: CelulaControle, evento: EventoType }) => {

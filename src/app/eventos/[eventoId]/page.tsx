@@ -1,5 +1,6 @@
 import CardTableInscricoes from "@/components/card-table-inscricoes"
 import CardTableInscricoesMeta from "@/components/card-table-inscricoes-meta"
+import { getPagamentoInscrito } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
 
 export const dynamic = 'auto'
@@ -24,6 +25,6 @@ export default async function EventoPage({ params }: Props) {
 
   return <div className="grid gap-6">
     <CardTableInscricoes celulas={celulas} evento={evento} inscricoes={inscricoes} />
-    {/* <CardTableInscricoesMeta celulas={celulas} evento={evento} inscricoes={inscricoes.filter(i => ["CONCLUIDA", "paid"].includes(i.pagamento?.status!))} /> */}
+    <CardTableInscricoesMeta celulas={celulas} evento={evento} inscricoes={inscricoes.filter(i => ["CONCLUIDA", "paid"].includes(getPagamentoInscrito(i)?.status!))} />
   </div>
 }

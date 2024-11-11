@@ -68,6 +68,6 @@ export default function DialogTableCredenciamentoCamera({ evento, inscrito, serv
                 ? <Loader2 className="size-4 animate-spin" />
                 : <TicketPlus className="size-4" />
         }
-        <span className="sr-only lg:not-sr-only">Fazer credenciamento</span>
+        <span className="sr-only lg:not-sr-only">Credenciar</span>
     </Button>
 }

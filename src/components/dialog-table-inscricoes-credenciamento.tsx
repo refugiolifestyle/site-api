@@ -10,7 +10,7 @@ import {
 
 
 import { EventoType, InscritoType } from "@/types";
-import { TicketCheck } from "lucide-react";
+import { SearchCheck, TicketCheck } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./ui/button";
 
@@ -28,8 +28,8 @@ export default function DialogTableCredenciamento({ inscrito, evento }: Props) {
             <Button
                 variant="outline"
                 className="flex space-x-2">
-                <TicketCheck className="size-4" />
-                <span className="sr-only lg:not-sr-only">Ver credenciamento</span>
+                <SearchCheck className="size-4" />
+                <span className="sr-only lg:not-sr-only">Visualizar</span>
             </Button>
         </DialogTrigger>
         <DialogContent className="w-full max-w-[425px]">

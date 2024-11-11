@@ -18,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn, getPagamentoInscrito } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, User, Users } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, Tag, User, Users } from "lucide-react"
 import { parseAsInteger, useQueryState } from "nuqs"
 import { toast } from "sonner"
 import DialogTablePagamentoCamera from "./dialog-table-inscricoes-pagamento-camera"
@@ -155,13 +155,13 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center mb-2 gap-2">
+        <div className="flex flex-col lg:flex-row mb-2 gap-2">
           <div className="relative flex-1 grow-1">
             <Search className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Procurar por..."
-              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
+              className="w-full rounded-lg bg-background pl-8"
               value={filterGlobal || ""}
               onChange={e => {
                 setFilterGlobal(e.target.value || null)
@@ -169,312 +169,329 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               }}
             />
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-sm"
-              >
-                <Users className="h-3.5 w-3.5" />
-                <span className="sr-only xl:not-sr-only">{
-                  !rede
-                    ? "Todas as redes"
-                    : rede
-                }</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandInput placeholder="Pesquisar..." />
-                <CommandList>
-                  <CommandEmpty>Nenhuma rede encontrada.</CommandEmpty>
-                  <CommandGroup>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setRede(null)
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          !rede ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Todas as Redes
-                    </CommandItem>
-                    {
-                      redes.map(r => <CommandItem className="cursor-pointer" key={r} onSelect={() => {
-                        setRede(r)
+          <div className="flex mb-2 gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="gap-1 text-sm relative"
+                >
+                  <Users className="h-3.5 w-3.5" />
+                  <span className="sr-only xl:not-sr-only">{
+                    !rede
+                      ? "Todas as redes"
+                      : rede
+                  }</span>
+                  {rede && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="Pesquisar..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhuma rede encontrada.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setRede(null)
                         setPage(1)
                       }}>
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            rede === r ? "opacity-100" : "opacity-0"
+                            !rede ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        {r}
-                      </CommandItem>)
-                    }
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-sm"
-              >
-                <User className="h-3.5 w-3.5" />
-                <span className="sr-only xl:not-sr-only">{
-                  !celula
-                    ? "Todas as celulas"
-                    : celula
-                }</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandInput placeholder="Pesquisar..." />
-                <CommandList>
-                  <CommandEmpty>Nenhuma celula encontrada.</CommandEmpty>
-                  <CommandGroup>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setCelula(null)
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          !celula ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Todas as células
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setCelula("Convidado")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          celula === "Convidado" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Convidado
-                    </CommandItem>
-                    {
-                      (
-                        !rede
-                          ? celulas
-                          : celulas.filter(f => f.rede === rede)
-                      ).map(s => <CommandItem className="cursor-pointer" key={s.celula} onSelect={() => {
-                        setCelula(s.celula)
+                        Todas as Redes
+                      </CommandItem>
+                      {
+                        redes.map(r => <CommandItem className="cursor-pointer" key={r} onSelect={() => {
+                          setRede(r)
+                          setPage(1)
+                        }}>
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              rede === r ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {r}
+                        </CommandItem>)
+                      }
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="gap-1 text-sm relative"
+                >
+                  <User className="h-3.5 w-3.5" />
+                  <span className="sr-only xl:not-sr-only">{
+                    !celula
+                      ? "Todas as celulas"
+                      : celula
+                  }</span>
+                  {celula && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="Pesquisar..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhuma celula encontrada.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setCelula(null)
                         setPage(1)
                       }}>
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            celula === s.celula ? "opacity-100" : "opacity-0"
+                            !celula ? "opacity-100" : "opacity-0"
                           )}
                         />
-                        {s.celula}
-                      </CommandItem>)
-                    }
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-sm"
-              >
-                <DollarSign className="h-3.5 w-3.5" />
-                <span className="sr-only xl:not-sr-only">{
-                  !situacao
-                    ? "Todas as situações"
-                    : situacao
-                }</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[250px] p-0">
-              <Command>
-                <CommandList>
-                  <CommandGroup>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao(null)
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          situacao === "" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Todas as situações
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Credenciado")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          situacao === "Credenciado" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Credenciado
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Pago")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          situacao === "Pago" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Pago
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Não pago")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          situacao === "Não pago" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Não pago
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Aguardando")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          situacao === "Aguardando" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Aguardando pagamento
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setSituacao("Cadastrado")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          situacao === "Cadastrado" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Cadastrado
-                    </CommandItem>
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1 text-sm"
-              >
-                <DollarSign className="h-3.5 w-3.5" />
-                <span className="sr-only xl:not-sr-only">{
-                  !tipoPagamento
-                    ? "Todas os tipos"
-                    : tipoPagamento === "credit_card"
-                      ? "Cartão de crédito"
-                      : tipoPagamento === "pix"
-                        ? "Pix"
-                        : tipoPagamento === "money"
-                          ? "Dinheiro"
-                          : "Presencial"
-                }</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[250px] p-0">
-              <Command>
-                <CommandList>
-                  <CommandGroup>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setTipoPagamento(null)
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          tipoPagamento === "" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Todas os tipos
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setTipoPagamento("credit_card")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          tipoPagamento === "credit_card" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Cartão de crédito
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setTipoPagamento("pix")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          tipoPagamento === "pix" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Pix
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setTipoPagamento("money")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          tipoPagamento === "money" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Dinheiro
-                    </CommandItem>
-                    <CommandItem className="cursor-pointer" onSelect={() => {
-                      setTipoPagamento("presencial")
-                      setPage(1)
-                    }}>
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          tipoPagamento === "presencial" ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Presencial
-                    </CommandItem>
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+                        Todas as células
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setCelula("Convidado")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            celula === "Convidado" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Convidado
+                      </CommandItem>
+                      {
+                        (
+                          !rede
+                            ? celulas
+                            : celulas.filter(f => f.rede === rede)
+                        ).map(s => <CommandItem className="cursor-pointer" key={s.celula} onSelect={() => {
+                          setCelula(s.celula)
+                          setPage(1)
+                        }}>
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              celula === s.celula ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {s.celula}
+                        </CommandItem>)
+                      }
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="gap-1 text-sm relative"
+                >
+                  <Tag className="h-3.5 w-3.5" />
+                  <span className="sr-only xl:not-sr-only">{
+                    !situacao
+                      ? "Todas as situações"
+                      : situacao
+                  }</span>
+                  {situacao && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[250px] p-0">
+                <Command>
+                  <CommandList>
+                    <CommandGroup>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao(null)
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            !situacao ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Todas as situações
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao("Credenciado")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            situacao === "Credenciado" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Credenciado
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao("Pago")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            situacao === "Pago" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Pago
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao("Não pago")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            situacao === "Não pago" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Não pago
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao("Aguardando")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            situacao === "Aguardando" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Aguardando pagamento
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setSituacao("Cadastrado")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            situacao === "Cadastrado" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Cadastrado
+                      </CommandItem>
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="gap-1 text-sm relative"
+                >
+                  <DollarSign className="h-3.5 w-3.5" />
+                  <span className="sr-only xl:not-sr-only">{
+                    !tipoPagamento
+                      ? "Todos os pagamentos"
+                      : tipoPagamento === "credit_card"
+                        ? "Cartão de crédito"
+                        : tipoPagamento === "pix"
+                          ? "Pix"
+                          : tipoPagamento === "money"
+                            ? "Dinheiro"
+                            : "Presencial"
+                  }</span>
+                  {tipoPagamento && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[250px] p-0">
+                <Command>
+                  <CommandList>
+                    <CommandGroup>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setTipoPagamento(null)
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            !tipoPagamento ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Todos os pagamentos
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setTipoPagamento("credit_card")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            tipoPagamento === "credit_card" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Cartão de crédito
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setTipoPagamento("pix")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            tipoPagamento === "pix" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Pix
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setTipoPagamento("money")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            tipoPagamento === "money" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Dinheiro
+                      </CommandItem>
+                      <CommandItem className="cursor-pointer" onSelect={() => {
+                        setTipoPagamento("presencial")
+                        setPage(1)
+                      }}>
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            tipoPagamento === "presencial" ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Presencial
+                      </CommandItem>
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Button
+              variant="outline"
+              className="gap-1 text-sm"
+              onClick={async () => {
+                let inscricoesText = inscricoesFiltradas
+                  .map(v => ([v.rede, v.celula, v.nome, getTipoPagamento(v), getStatusPagamento(v)].join('\t')))
+                await navigator.clipboard.writeText([
+                  "Rede\tCélula\tNome\tPagamento\tSituação",
+                  ...inscricoesText
+                ].join('\n'))
+                toast.success("Copiado com sucesso")
+              }}
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
         <Table>
           <TableHeader>
