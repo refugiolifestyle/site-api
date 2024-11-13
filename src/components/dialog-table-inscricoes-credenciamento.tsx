@@ -13,6 +13,7 @@ import { EventoType, InscritoType } from "@/types";
 import { SearchCheck, TicketCheck } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -20,17 +21,24 @@ export const revalidate = 0
 type Props = {
     evento: EventoType
     inscrito: InscritoType
+    outside?: boolean
 }
 
-export default function DialogTableCredenciamento({ inscrito, evento }: Props) {
+export default function DialogTableCredenciamento({ inscrito, outside }: Props) {
     return <Dialog>
         <DialogTrigger asChild>
-            <Button
-                variant="outline"
-                className="flex space-x-2">
-                <SearchCheck className="size-4" />
-                <span className="sr-only lg:not-sr-only">Visualizar</span>
-            </Button>
+            {
+                outside
+                    ? <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
+                        Credenciamento
+                    </DropdownMenuItem>
+                    : <Button
+                        variant="outline"
+                        className="flex space-x-2">
+                        <SearchCheck className="size-4" />
+                        <span className="sr-only lg:not-sr-only">Visualizar</span>
+                    </Button>
+            }
         </DialogTrigger>
         <DialogContent className="w-full max-w-[425px]">
             <DialogHeader className="text-left">

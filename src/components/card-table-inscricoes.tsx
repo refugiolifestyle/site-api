@@ -22,6 +22,7 @@ import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, Do
 import { parseAsInteger, useQueryState } from "nuqs"
 import { toast } from "sonner"
 import DialogTablePagamentoCamera from "./dialog-table-inscricoes-pagamento-camera"
+import DialogTableCredenciamento from "./dialog-table-inscricoes-credenciamento"
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -565,6 +566,10 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                         {
                           !["CONCLUIDA", "paid"].includes(getPagamentoInscrito(inscrito)?.status!)
                           && <DialogTablePagamentoCamera evento={evento} inscrito={inscrito} />
+                        }
+                        {
+                          inscrito.credenciamento
+                          && <DialogTableCredenciamento evento={evento} inscrito={inscrito} outside />
                         }
                         <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = `tel:+55${inscrito.telefone}`}>
                           Ligar
