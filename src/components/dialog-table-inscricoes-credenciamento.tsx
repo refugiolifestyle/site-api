@@ -13,7 +13,7 @@ import { EventoType, InscritoType } from "@/types";
 import { SearchCheck, TicketCheck } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./ui/button";
-import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+import { DropdownMenuItem } from "./ui/dropdown-menu";
 
 export const dynamic = 'auto'
 export const revalidate = 0
@@ -30,7 +30,7 @@ export default function DialogTableCredenciamento({ inscrito, outside }: Props) 
             {
                 outside
                     ? <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
-                        Credenciamento
+                        Ver credenciamento
                     </DropdownMenuItem>
                     : <Button
                         variant="outline"
