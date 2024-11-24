@@ -17,7 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils"
 import { CelulaType, EventoType, InscritoType } from "@/types"
 import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, Loader2, Search, Tag, User, Users } from "lucide-react"
-import { parseAsInteger, useQueryState } from "nuqs"
+import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState } from "nuqs"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { Badge } from "./ui/badge"
@@ -70,33 +70,48 @@ function MetaStatus({ evento, celulaControle }: { evento: EventoType, celulaCont
   }
 }
 
+const handleOnFilterClick = (setFn: any, value: string) => {
+  setFn((old: string[] | null) => {
+    if (!old) {
+      old = []
+    }
+
+    let nOld = old.includes(value) ? old.filter(o => o != value) : old.concat([value])
+    return nOld.length == 0 ? null : nOld
+  })
+}
+
 export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }: Props) {
   const [page, setPage] = useQueryState("fmp", parseAsInteger.withDefault(1))
   const [filterGlobal, setFilterGlobal] = useQueryState("fmf")
-  const [rede, setRede] = useQueryState("fmr")
-  const [celula, setCelula] = useQueryState("fmc")
-  const [situacao, setSituacao] = useQueryState("fms")
+  const [rede, setRede] = useQueryState("fmr", parseAsArrayOf(parseAsString))
+  const [celula, setCelula] = useQueryState("fmc", parseAsArrayOf(parseAsString))
+  const [situacao, setSituacao] = useQueryState("fms", parseAsArrayOf(parseAsString))
 
   let inscricoesControle: Record<string, CelulaControle> = {}
-  inscricoes.forEach(i => {
-    if (!inscricoesControle[i.celula || "Convidado"]) {
-      let celula = celulas.find(c => c.celula == i.celula)
-
-      inscricoesControle[i.celula || "Convidado"] = {
-        rede: i.rede || "",
-        celula: i.celula || "Convidado",
-        inscricoes: 0,
-        lider: celula?.lider
-      }
+  celulas.forEach(c => {
+    inscricoesControle[c.celula] = {
+      rede: c.rede || "",
+      celula: c.celula,
+      inscricoes: 0,
+      lider: c.lider
     }
+  })
 
+  inscricoesControle["Convidado"] = {
+    rede: "",
+    celula: "Convidado",
+    inscricoes: 0
+  }
+
+  inscricoes.forEach(i => {
     inscricoesControle[i.celula || "Convidado"].inscricoes += 1
   })
 
   let celulasFiltradas: CelulaControle[] = Object.values(inscricoesControle)
-  celulasFiltradas = celulasFiltradas.filter(f => !rede ? true : f.rede?.toLowerCase() == rede?.toLowerCase())
-  celulasFiltradas = celulasFiltradas.filter(f => !celula ? true : celula == "Convidado" ? !f.celula : f.celula?.toLowerCase() == celula?.toLowerCase())
-  celulasFiltradas = celulasFiltradas.filter(f => !situacao ? true : getMetaStatus(evento, f) == situacao)
+  celulasFiltradas = celulasFiltradas.filter(f => !rede?.length ? true : rede?.includes(f.rede!))
+  celulasFiltradas = celulasFiltradas.filter(f => !celula?.length ? true : celula?.includes("Convidado") ? !f.celula : celula?.includes(f.celula!))
+  celulasFiltradas = celulasFiltradas.filter(f => !situacao?.length ? true : situacao?.includes(getMetaStatus(evento, f)))
   celulasFiltradas = celulasFiltradas.filter(f => {
     if (!filterGlobal) {
       return true
@@ -156,12 +171,12 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                   className="gap-1 text-sm relative"
                 >
                   <Users className="h-3.5 w-3.5" />
-                  <span className="sr-only xl:not-sr-only">{
-                    !rede
+                  <span className="hidden xl:block w-full max-w-[150px] truncate">{
+                    !rede?.length
                       ? "Todas as redes"
-                      : rede
+                      : rede.join(', ')
                   }</span>
-                  {rede && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                  {rede?.length && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0">
@@ -177,20 +192,20 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            !rede ? "opacity-100" : "opacity-0"
+                            !rede?.length ? "opacity-100" : "opacity-0"
                           )}
                         />
                         Todas as Redes
                       </CommandItem>
                       {
                         redes.map(r => <CommandItem className="cursor-pointer" key={r} onSelect={() => {
-                          setRede(r)
+                          handleOnFilterClick(setRede, r)
                           setPage(1)
                         }}>
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              rede === r ? "opacity-100" : "opacity-0"
+                              rede?.includes(r) ? "opacity-100" : "opacity-0"
                             )}
                           />
                           {r}
@@ -208,12 +223,12 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                   className="gap-1 text-sm relative"
                 >
                   <User className="h-3.5 w-3.5" />
-                  <span className="sr-only xl:not-sr-only">{
-                    !celula
+                  <span className="hidden xl:block w-full max-w-[150px] truncate">{
+                    !celula?.length
                       ? "Todas as celulas"
-                      : celula
+                      : celula.join(', ')
                   }</span>
-                  {celula && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                  {celula?.length && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0">
@@ -229,19 +244,19 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            !celula ? "opacity-100" : "opacity-0"
+                            !celula?.length ? "opacity-100" : "opacity-0"
                           )}
                         />
                         Todas as células
                       </CommandItem>
                       <CommandItem className="cursor-pointer" onSelect={() => {
-                        setCelula("Convidado")
+                        handleOnFilterClick(setCelula, "Convidado")
                         setPage(1)
                       }}>
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            celula === "Convidado" ? "opacity-100" : "opacity-0"
+                            celula?.includes("Convidado") ? "opacity-100" : "opacity-0"
                           )}
                         />
                         Convidado
@@ -250,15 +265,15 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                         (
                           !rede
                             ? celulas
-                            : celulas.filter(f => `Rede ${f.rede}` === rede)
+                            : celulas.filter(f => rede?.includes(`Rede ${f.rede}`))
                         ).map(s => <CommandItem className="cursor-pointer" key={`Rede ${s.celula}`} onSelect={() => {
-                          setCelula(s.celula)
+                          handleOnFilterClick(setCelula, s.celula)
                           setPage(1)
                         }}>
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              celula === s.celula ? "opacity-100" : "opacity-0"
+                              celula?.includes(s.celula) ? "opacity-100" : "opacity-0"
                             )}
                           />
                           {s.celula}
@@ -276,12 +291,12 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                   className="gap-1 text-sm relative"
                 >
                   <Tag className="h-3.5 w-3.5" />
-                  <span className="sr-only xl:not-sr-only">{
-                    !situacao
+                  <span className="hidden xl:block w-full max-w-[150px] truncate">{
+                    !situacao?.length
                       ? "Todas as situações"
-                      : situacao
+                      : situacao.join(', ')
                   }</span>
-                  {situacao && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
+                  {situacao?.length && <span className="absolute bg-red-500 rounded-full size-[8px] top-[10px] right-[10px] md:hidden" />}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0">
@@ -295,43 +310,43 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            !situacao ? "opacity-100" : "opacity-0"
+                            !situacao?.length ? "opacity-100" : "opacity-0"
                           )}
                         />
                         Todas as situações
                       </CommandItem>
                       <CommandItem className="cursor-pointer" onSelect={() => {
-                        setSituacao("Meta confirmada")
+                        handleOnFilterClick(setSituacao, "Meta confirmada")
                         setPage(1)
                       }}>
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            situacao === "Meta confirmada" ? "opacity-100" : "opacity-0"
+                            situacao?.includes("Meta confirmada") ? "opacity-100" : "opacity-0"
                           )}
                         />
                         Meta confirmada
                       </CommandItem>
                       <CommandItem className="cursor-pointer" onSelect={() => {
-                        setSituacao("Chegou na meta")
+                        handleOnFilterClick(setSituacao, "Chegou na meta")
                         setPage(1)
                       }}>
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            situacao === "Chegou na meta" ? "opacity-100" : "opacity-0"
+                            situacao?.includes("Chegou na meta") ? "opacity-100" : "opacity-0"
                           )}
                         />
                         Chegou na meta
                       </CommandItem>
                       <CommandItem className="cursor-pointer" onSelect={() => {
-                        setSituacao("Não chegou na Meta")
+                        handleOnFilterClick(setSituacao, "Não chegou na Meta")
                         setPage(1)
                       }}>
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            situacao === "Não chegou na Meta" ? "opacity-100" : "opacity-0"
+                            situacao?.includes("Não chegou na Meta") ? "opacity-100" : "opacity-0"
                           )}
                         />
                         Não chegou na Meta
