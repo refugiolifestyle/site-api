@@ -117,7 +117,8 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
       return true
     }
 
-    return [
+    let filterByQuantity = /(<|>|>=|<=|=)\s?(\d+)/g.exec(filterGlobal)
+    let filterByArray = [
       f.rede,
       f.celula?.normalize('NFD').replace(/[\u0300-\u036f]/g, ""),
       f.lider?.normalize('NFD').replace(/[\u0300-\u036f]/g, ""),
@@ -125,6 +126,17 @@ export default function CardTableInscricoesMeta({ celulas, evento, inscricoes }:
       f.inscricoes
     ]
       .some(v => String(v!).toLowerCase().includes(filterGlobal.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase()))
+
+    return filterByArray
+      || (
+        !filterByQuantity
+          ? true
+          : filterByQuantity[1] == ">" ? f.inscricoes > parseInt(filterByQuantity[2])
+            : filterByQuantity[1] == "<" ? f.inscricoes < parseInt(filterByQuantity[2])
+              : filterByQuantity[1] == "<=" ? f.inscricoes <= parseInt(filterByQuantity[2])
+                : filterByQuantity[1] == ">=" ? f.inscricoes >= parseInt(filterByQuantity[2])
+                  : f.inscricoes == parseInt(filterByQuantity[2])
+      )
   })
 
   const sorter = new Intl.Collator('pt-BR', { usage: "sort", numeric: true })
