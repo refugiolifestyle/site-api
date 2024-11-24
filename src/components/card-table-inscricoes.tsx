@@ -95,7 +95,6 @@ const getStatusPagamento = (inscrito: InscritoType) => {
 
 const getTipoPagamento = (inscrito: InscritoType) => {
   let tipoPagamento = getPagamentoInscrito(inscrito)?.tipo;
-
   return parseTipoPagamento(tipoPagamento!)
 }
 
@@ -489,9 +488,9 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
               className="gap-1 text-sm"
               onClick={async () => {
                 let inscricoesText = inscricoesFiltradas
-                  .map(v => ([v.rede, v.celula, v.nome, getTipoPagamento(v), getStatusPagamento(v)].join('\t')))
+                  .map(v => ([v.rede, v.celula, v.nome, getTipoPagamento(v), getStatusPagamento(v), v.telefone].join('\t')))
                 await navigator.clipboard.writeText([
-                  "Rede\tCélula\tNome\tPagamento\tSituação",
+                  "Rede\tCélula\tNome\tPagamento\tSituação\tTelefone",
                   ...inscricoesText
                 ].join('\n'))
                 toast.success("Copiado com sucesso")
