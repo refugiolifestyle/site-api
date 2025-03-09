@@ -21,20 +21,15 @@ export async function GET(_: Request, { params }: ApiProps) {
 export async function POST(request: Request, { params }: ApiProps) {
     const inscrito: InscritoType = await request.json();
 
-    let id = crypto
-        .createHash('sha1')
-        .update(`${inscrito.rede}-${inscrito.celula}-${inscrito.esposo}-${inscrito.esposa}-${inscrito.telefoneEsposo}-${inscrito.telefoneEsposa}`)
-        .digest('hex');
-
-    const refEmail = ref(database, `eventos/${params.eventoId}/inscricoes/${id}`)
+    const refEmail = ref(database, `eventos/${params.eventoId}/inscricoes/${inscrito.id}`)
     const inscritoEmail = await get(refEmail)
 
     if (inscritoEmail.exists()) {
         return Response.json({ message: "Já existe esse cadastro" }, { status: 400 });
     }
 
-    const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${id}`)
-    await set(refInscrito, {...inscrito, id})
+    const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${inscrito.id}`)
+    await set(refInscrito, inscrito)
 
     return Response.json({ message: "Informações cadastradas com sucesso" }, { status: 201 });
 }
