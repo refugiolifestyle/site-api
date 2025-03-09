@@ -21,7 +21,6 @@ import { CelulaType, EventoType, InscritoType } from "@/types"
 import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Copy, DollarSign, MoreVertical, Search, Tag, User, Users } from "lucide-react"
 import { parseAsArrayOf, parseAsInteger, parseAsString, queryTypes, SetValues, useQueryState, UseQueryStateReturn, UseQueryStatesReturn } from "nuqs"
 import { toast } from "sonner"
-import DialogTablePagamentoCamera from "./dialog-table-inscricoes-pagamento-camera"
 import DialogTableCredenciamento from "./dialog-table-inscricoes-credenciamento"
 
 export const dynamic = 'auto'
@@ -526,7 +525,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
             {
               inscricoesFiltradas
                 .slice((page - 1) * 10, page * 10 > inscricoesFiltradas.length ? inscricoesFiltradas.length : page * 10)
-                .map((inscrito, i) => <TableRow key={inscrito.cpf} className={i % 2 == 0 ? "bg-accent" : "null"}>
+                .map((inscrito, i) => <TableRow key={inscrito.cpf!} className={i % 2 == 0 ? "bg-accent" : "null"}>
                   <TableCell className="hidden md:table-cell">
                     {inscrito.rede || '-'}
                   </TableCell>
@@ -540,10 +539,10 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                     </div>
                   </TableCell>
                   <TableCell className="hidden sm:table-cell" onDoubleClick={async () => {
-                    await navigator.clipboard.writeText(inscrito.cpf)
+                    await navigator.clipboard.writeText(inscrito.cpf!)
                     toast.success("Copiado com sucesso")
                   }}>
-                    {inscrito.cpf.replace(/\d{3}(\d{3})(\d{2})\d{3}/, '***.$1.$2*-**')}
+                    {inscrito.cpf?.replace(/\d{3}(\d{3})(\d{2})\d{3}/, '***.$1.$2*-**')}
                   </TableCell>
                   <TableCell>
                     {
@@ -569,14 +568,6 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        {
-                          !["CONCLUIDA", "paid"].includes(getPagamentoInscrito(inscrito)?.status!)
-                          && <DialogTablePagamentoCamera evento={evento} inscrito={inscrito} />
-                        }
-                        {
-                          inscrito.credenciamento
-                          && <DialogTableCredenciamento evento={evento} inscrito={inscrito} outside />
-                        }
                         <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = `tel:+55${inscrito.telefone}`}>
                           Ligar
                         </DropdownMenuItem>

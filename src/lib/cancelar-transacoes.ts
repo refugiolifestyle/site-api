@@ -25,7 +25,7 @@ export async function cancelarTransacoesEmAberto(evento: EventoType, inscrito: I
                 break;
         }
 
-        await set(ref(database, `eventos/${evento.id}/inscricoes/${inscrito.cpf}/pagamentos/${pagamento.txid}/status`), status)
-        await set(ref(database, `eventos/${evento.id}/inscricoes/${inscrito.cpf}/pagamentos/${pagamento.txid}/canceladoEm`), new Date().toString())
+        await set(ref(database, `eventos/${evento.id}/inscricoes/${inscrito.cpf!}/pagamentos/${pagamento.txid}/status`), status)
+        await set(ref(database, `eventos/${evento.id}/inscricoes/${inscrito.cpf!}/pagamentos/${pagamento.txid}/canceladoEm`), new Date().toString())
     }
 }

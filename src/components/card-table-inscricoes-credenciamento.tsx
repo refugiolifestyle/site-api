@@ -1,4 +1,4 @@
-"use client"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        "use client"
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, DollarSi
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { toast } from "sonner";
 import useSessionStorageState from 'use-session-storage-state';
-import DialogTableCredenciamentoCamera from "./dialog-table-inscricoes-credenciamento-camera";
 import useSWR from 'swr'
 import DialogTableCredenciamento from "./dialog-table-inscricoes-credenciamento";
 import { useRef } from "react";
@@ -262,7 +261,7 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                                         {
                                             inscricoesFiltradas
                                                 .slice((page - 1) * 10, page * 10 > inscricoesFiltradas.length ? inscricoesFiltradas.length : page * 10)
-                                                .map((inscrito, i) => <TableRow key={inscrito.cpf} className={i % 2 == 0 ? "bg-accent" : "null"}>
+                                                .map((inscrito, i) => <TableRow key={inscrito.cpf!} className={i % 2 == 0 ? "bg-accent" : "null"}>
                                                     <TableCell className="hidden md:table-cell">
                                                         {inscrito.rede || '-'}
                                                     </TableCell>
@@ -276,10 +275,10 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="hidden sm:table-cell" onDoubleClick={async () => {
-                                                        await navigator.clipboard.writeText(inscrito.cpf)
+                                                        await navigator.clipboard.writeText(inscrito.cpf!)
                                                         toast.success("Copiado com sucesso")
                                                     }}>
-                                                        {inscrito.cpf.replace(/\d{3}(\d{3})(\d{2})\d{3}/, '***.$1.$2*-**')}
+                                                        {inscrito.cpf?.replace(/\d{3}(\d{3})(\d{2})\d{3}/, '***.$1.$2*-**')}
                                                     </TableCell>
                                                     <TableCell>
                                                         {
@@ -288,15 +287,6 @@ export default function CardTableCredenciamento({ celulas, evento }: Props) {
                                                     </TableCell>
                                                     <TableCell>
                                                         <TableStatusPagamento evento={evento} inscrito={inscrito} />
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        {
-                                                            inscrito.credenciamento
-                                                                ? <DialogTableCredenciamento evento={evento} inscrito={inscrito} />
-                                                                : getStatusPagamento(inscrito) === "Pago" || (["Dinheiro", "Presencial"].includes(getTipoPagamento(inscrito)) && getStatusPagamento(inscrito) === "Aguardando")
-                                                                    ? <DialogTableCredenciamentoCamera evento={evento} inscrito={inscrito} servo={servo} />
-                                                                    : null
-                                                        }
                                                     </TableCell>
                                                 </TableRow>)
                                         }
