@@ -41,8 +41,7 @@ export async function POST(request: Request, { params }: ApiProps) {
                 "expiracao": 60 * 60 * 24
             },
             "devedor": {
-                "cpf": inscrito.cpf,
-                "nome": inscrito.nome
+                "nome": inscrito.esposo
             },
             "valor": {
                 "original": `${valor}.00`
