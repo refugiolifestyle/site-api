@@ -39,8 +39,7 @@ export async function GET(_: Request, { params }: ApiProps) {
 
     // }
 
-    let { eventos, ...inscrito } = data
     return Response.json({
-        inscrito
+        inscrito: data
     })
 }
