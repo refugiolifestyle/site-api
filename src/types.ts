@@ -14,12 +14,13 @@ export type BannerType = {
 }
 
 export type InscritoType = {
-  cpf: string
-  nome?: string
-  telefone?: string
+  id?: string
+  esposo?: string
+  esposa?: string
+  telefoneEsposo?: string
+  telefoneEsposa?: string
   rede?: string
   celula?: string
-  email?: string
   finalizada?: boolean
   inscritoEm?: string
   pagamentos?: Pagamento[]
