@@ -11,7 +11,13 @@ type ApiProps = {
 export async function GET(_: Request, { params }: ApiProps) {
     const refInscrito = ref(database, `eventos/${params.eventoId}/inscricoes/${params.inscritoId}`)
     const snapshotInscrito = await get(refInscrito)
-    let data = snapshotInscrito.val()
+
+    if (snapshotInscrito.exists()) {
+        let data = snapshotInscrito.val()
+        return Response.json({
+            inscrito: data
+        })
+    }
 
     // if (!snapshotInscrito.exists()) {
     //     const refInscritoAnteriomente = ref(database, `membros/${params.inscritoId}`)
@@ -40,6 +46,8 @@ export async function GET(_: Request, { params }: ApiProps) {
     // }
 
     return Response.json({
-        inscrito: data
+        inscrito: {
+            novo: true
+        }
     })
 }
