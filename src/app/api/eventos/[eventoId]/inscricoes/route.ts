@@ -1,7 +1,6 @@
 import { database } from "@/configs/firebase";
 import { InscritoType } from "@/types";
 import { equalTo, get, orderByChild, query, ref, set } from "firebase/database";
-import crypto from 'crypto'
 
 type ApiProps = {
     params: {
