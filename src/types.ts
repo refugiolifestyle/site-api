@@ -15,6 +15,9 @@ export type BannerType = {
 
 export type InscritoType = {
   id?: string
+  nome?: string
+  telefone?: string 
+  email?: string
   esposo?: string
   esposa?: string
   telefoneEsposo?: string
