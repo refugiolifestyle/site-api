@@ -533,7 +533,7 @@ export default function CardTableInscricoes({ celulas, evento, inscricoes }: Pro
                     {inscrito.celula || 'Convidado'}
                   </TableCell>
                   <TableCell>
-                    {inscrito.nome}
+                    {inscrito.esposo}
                     <div className="text-sm text-muted-foreground md:hidden lg:hidden xl:hidden">
                       {inscrito.celula || 'Convidado'}
                     </div>
